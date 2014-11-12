@@ -43,10 +43,18 @@ public final class NotificationReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.d(LOGTAG, "NotificationReceiver.onReceive()...");
+        L.d(LOGTAG, "NotificationReceiver.onReceive()...");
         String action = intent.getAction();
-        Log.d(LOGTAG, "action=" + action);
+        L.d(LOGTAG, "action=" + action);
 
+        /* Androidpn_NotificationPacketListener(24421): 
+			packet.toXML()=
+			<iq id="857-94" to="8e302d850bed414e98dd866fc2bac421@127.0.0.1/AndroidpnClient" type="set">
+				<notification xmlns="androidpn:iq:notification">
+					<id>13866063</id>
+				</notification> 
+			</iq>
+         */
         if (Constants.ACTION_SHOW_NOTIFICATION.equals(action)) {
             String notificationId = intent
                     .getStringExtra(Constants.NOTIFICATION_ID);

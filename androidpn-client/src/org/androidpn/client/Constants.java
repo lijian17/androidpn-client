@@ -23,20 +23,27 @@ package org.androidpn.client;
  */
 public class Constants {
 
+	/** SharedPreferences 文件名 **/
 	public static final String SHARED_PREFERENCE_NAME = "client_preferences";
 
-	// PREFERENCE KEYS
+	/********************************** 偏好设置 ***************************************************************************************************/
 
+	/** 回调Activity的包名 **/
 	public static final String CALLBACK_ACTIVITY_PACKAGE_NAME = "CALLBACK_ACTIVITY_PACKAGE_NAME";
 
+	/** 回调Activity的全类名 **/
 	public static final String CALLBACK_ACTIVITY_CLASS_NAME = "CALLBACK_ACTIVITY_CLASS_NAME";
 
+	/** XMPP密钥 **/
 	public static final String API_KEY = "API_KEY";
 
+	/** 版本号 **/
 	public static final String VERSION = "VERSION";
 
+	/** XMPP的IP **/
 	public static final String XMPP_HOST = "XMPP_HOST";
 
+	/** XMPP的端口 **/
 	public static final String XMPP_PORT = "XMPP_PORT";
 
 	public static final String XMPP_USERNAME = "XMPP_USERNAME";
@@ -49,6 +56,7 @@ public class Constants {
 
 	public static final String EMULATOR_DEVICE_ID = "EMULATOR_DEVICE_ID";
 
+	/** 通知的logo图片 **/
 	public static final String NOTIFICATION_ICON = "NOTIFICATION_ICON";
 
 	public static final String SETTINGS_NOTIFICATION_ENABLED = "SETTINGS_NOTIFICATION_ENABLED";
@@ -59,20 +67,26 @@ public class Constants {
 
 	public static final String SETTINGS_TOAST_ENABLED = "SETTINGS_TOAST_ENABLED";
 
-	// NOTIFICATION FIELDS
+	/********************************** 通知 ***************************************************************************************************/
 
+	/** 通知的ID **/
 	public static final String NOTIFICATION_ID = "NOTIFICATION_ID";
 
+	/** 通知的密钥 **/
 	public static final String NOTIFICATION_API_KEY = "NOTIFICATION_API_KEY";
 
+	/** 通知的标题 **/
 	public static final String NOTIFICATION_TITLE = "NOTIFICATION_TITLE";
 
+	/** 通知的正文 **/
 	public static final String NOTIFICATION_MESSAGE = "NOTIFICATION_MESSAGE";
 
+	/** 通知的Url **/
 	public static final String NOTIFICATION_URI = "NOTIFICATION_URI";
 
-	// INTENT ACTIONS
+	/********************************** intent动作 ***************************************************************************************************/
 
+	/** 显示通知 **/
 	public static final String ACTION_SHOW_NOTIFICATION = "org.androidpn.client.SHOW_NOTIFICATION";
 
 	public static final String ACTION_NOTIFICATION_CLICKED = "org.androidpn.client.NOTIFICATION_CLICKED";
