@@ -59,12 +59,16 @@ public class Constants {
 	/** 通知的logo图片 **/
 	public static final String NOTIFICATION_ICON = "NOTIFICATION_ICON";
 
+	/** 是否显示推送的通知 **/
 	public static final String SETTINGS_NOTIFICATION_ENABLED = "SETTINGS_NOTIFICATION_ENABLED";
 
+	/** 当接到推送通知-->是否播放通知声音 **/
 	public static final String SETTINGS_SOUND_ENABLED = "SETTINGS_SOUND_ENABLED";
 
+	/** 当接到推送通知-->是否震动手机 **/
 	public static final String SETTINGS_VIBRATE_ENABLED = "SETTINGS_VIBRATE_ENABLED";
 
+	/** 当接到推送通知-->是否显示吐司 **/
 	public static final String SETTINGS_TOAST_ENABLED = "SETTINGS_TOAST_ENABLED";
 
 	/********************************** 通知 ***************************************************************************************************/

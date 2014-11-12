@@ -153,23 +153,48 @@ public class Notifier {
         }
     }
 
+	/**
+	 * 得到通知的logo
+	 * 
+	 * @return
+	 */
     private int getNotificationIcon() {
         return sharedPrefs.getInt(Constants.NOTIFICATION_ICON, 0);
     }
 
+	/**
+	 * 是否显示推送的通知
+	 * 
+	 * @return
+	 */
     private boolean isNotificationEnabled() {
         return sharedPrefs.getBoolean(Constants.SETTINGS_NOTIFICATION_ENABLED,
                 true);
     }
 
+	/**
+	 * 当接到推送通知-->是否播放通知声音
+	 * 
+	 * @return
+	 */
     private boolean isNotificationSoundEnabled() {
         return sharedPrefs.getBoolean(Constants.SETTINGS_SOUND_ENABLED, true);
     }
 
+	/**
+	 * 当接到推送通知-->是否震动手机
+	 * 
+	 * @return
+	 */
     private boolean isNotificationVibrateEnabled() {
         return sharedPrefs.getBoolean(Constants.SETTINGS_VIBRATE_ENABLED, true);
     }
 
+	/**
+	 * 当接到推送通知-->是否显示吐司
+	 * 
+	 * @return
+	 */
     private boolean isNotificationToastEnabled() {
         return sharedPrefs.getBoolean(Constants.SETTINGS_TOAST_ENABLED, false);
     }
