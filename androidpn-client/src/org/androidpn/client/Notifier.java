@@ -54,13 +54,13 @@ public class Notifier {
 
     public void notify(String notificationId, String apiKey, String title,
             String message, String uri) {
-        Log.d(LOGTAG, "notify()...");
+        L.d(LOGTAG, "notify()...");
 
-        Log.d(LOGTAG, "notificationId=" + notificationId);
-        Log.d(LOGTAG, "notificationApiKey=" + apiKey);
-        Log.d(LOGTAG, "notificationTitle=" + title);
-        Log.d(LOGTAG, "notificationMessage=" + message);
-        Log.d(LOGTAG, "notificationUri=" + uri);
+        L.d(LOGTAG, "notificationId=" + notificationId);
+        L.d(LOGTAG, "notificationApiKey=" + apiKey);
+        L.d(LOGTAG, "notificationTitle=" + title);
+        L.d(LOGTAG, "notificationMessage=" + message);
+        L.d(LOGTAG, "notificationUri=" + uri);
 
         if (isNotificationEnabled()) {
             // Show the toast
@@ -149,27 +149,52 @@ public class Notifier {
             //            notificationManager.notify(random.nextInt(), notification);
 
         } else {
-            Log.w(LOGTAG, "Notificaitons disabled.");
+            L.w(LOGTAG, "Notificaitons disabled.");
         }
     }
 
+	/**
+	 * 得到通知的logo
+	 * 
+	 * @return
+	 */
     private int getNotificationIcon() {
         return sharedPrefs.getInt(Constants.NOTIFICATION_ICON, 0);
     }
 
+	/**
+	 * 是否显示推送的通知
+	 * 
+	 * @return
+	 */
     private boolean isNotificationEnabled() {
         return sharedPrefs.getBoolean(Constants.SETTINGS_NOTIFICATION_ENABLED,
                 true);
     }
 
+	/**
+	 * 当接到推送通知-->是否播放通知声音
+	 * 
+	 * @return
+	 */
     private boolean isNotificationSoundEnabled() {
         return sharedPrefs.getBoolean(Constants.SETTINGS_SOUND_ENABLED, true);
     }
 
+	/**
+	 * 当接到推送通知-->是否震动手机
+	 * 
+	 * @return
+	 */
     private boolean isNotificationVibrateEnabled() {
         return sharedPrefs.getBoolean(Constants.SETTINGS_VIBRATE_ENABLED, true);
     }
 
+	/**
+	 * 当接到推送通知-->是否显示吐司
+	 * 
+	 * @return
+	 */
     private boolean isNotificationToastEnabled() {
         return sharedPrefs.getBoolean(Constants.SETTINGS_TOAST_ENABLED, false);
     }

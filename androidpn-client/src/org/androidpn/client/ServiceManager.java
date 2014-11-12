@@ -22,7 +22,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.util.Log;
 
 /**
  * This class is to manage the notificatin service and to load the
@@ -39,6 +38,7 @@ public final class ServiceManager {
 
 	private SharedPreferences sharedPrefs;
 
+	/** 加载配置文件 **/
 	private Properties props;
 
 	private String version = "0.5.0";
@@ -49,15 +49,17 @@ public final class ServiceManager {
 
 	private String xmppPort;
 
+	/** 回调Activity的包名 **/
 	private String callbackActivityPackageName;
 
+	/** 回调Activity的全类名 **/
 	private String callbackActivityClassName;
 
 	public ServiceManager(Context context) {
 		this.context = context;
 
 		if (context instanceof Activity) {
-			Log.i(LOGTAG, "Callback Activity...");
+			L.i(LOGTAG, "Callback Activity...");
 			Activity callbackActivity = (Activity) context;
 			callbackActivityPackageName = callbackActivity.getPackageName();
 			callbackActivityClassName = callbackActivity.getClass().getName();
@@ -74,9 +76,9 @@ public final class ServiceManager {
 		apiKey = props.getProperty("apiKey", "");
 		xmppHost = props.getProperty("xmppHost", "127.0.0.1");
 		xmppPort = props.getProperty("xmppPort", "5222");
-		Log.i(LOGTAG, "apiKey=" + apiKey);
-		Log.i(LOGTAG, "xmppHost=" + xmppHost);
-		Log.i(LOGTAG, "xmppPort=" + xmppPort);
+		L.i(LOGTAG, "apiKey=" + apiKey);
+		L.i(LOGTAG, "xmppHost=" + xmppHost);
+		L.i(LOGTAG, "xmppPort=" + xmppPort);
 
 		sharedPrefs = context.getSharedPreferences(Constants.SHARED_PREFERENCE_NAME, Context.MODE_PRIVATE);
 		Editor editor = sharedPrefs.edit();
@@ -87,9 +89,12 @@ public final class ServiceManager {
 		editor.putString(Constants.CALLBACK_ACTIVITY_PACKAGE_NAME, callbackActivityPackageName);
 		editor.putString(Constants.CALLBACK_ACTIVITY_CLASS_NAME, callbackActivityClassName);
 		editor.commit();
-		// Log.i(LOGTAG, "sharedPrefs=" + sharedPrefs.toString());
+		// L.i(LOGTAG, "sharedPrefs=" + sharedPrefs.toString());
 	}
 
+	/**
+	 * 开新线程启动服务
+	 */
 	public void startService() {
 		Thread serviceThread = new Thread(new Runnable() {
 			@Override
@@ -101,6 +106,9 @@ public final class ServiceManager {
 		serviceThread.start();
 	}
 
+	/**
+	 * 停止服务
+	 */
 	public void stopService() {
 		Intent intent = NotificationService.getIntent();
 		context.stopService(intent);
@@ -132,35 +140,40 @@ public final class ServiceManager {
 	//        return value.toString();
 	//    }
 
+	/**
+	 * 加载Properties配置文件
+	 * 
+	 * @return
+	 */
 	private Properties loadProperties() {
-		//        InputStream in = null;
-		//        Properties props = null;
-		//        try {
-		//            in = getClass().getResourceAsStream(
-		//                    "/org/androidpn/client/client.properties");
-		//            if (in != null) {
-		//                props = new Properties();
-		//                props.load(in);
-		//            } else {
-		//                Log.e(LOGTAG, "Could not find the properties file.");
-		//            }
-		//        } catch (IOException e) {
-		//            Log.e(LOGTAG, "Could not find the properties file.", e);
-		//        } finally {
-		//            if (in != null)
-		//                try {
-		//                    in.close();
-		//                } catch (Throwable ignore) {
-		//                }
-		//        }
-		//        return props;
+	//        InputStream in = null;
+	//        Properties props = null;
+	//        try {
+	//            in = getClass().getResourceAsStream(
+	//                    "/org/androidpn/client/client.properties");
+	//            if (in != null) {
+	//                props = new Properties();
+	//                props.load(in);
+	//            } else {
+	//                Log.e(LOGTAG, "Could not find the properties file.");
+	//            }
+	//        } catch (IOException e) {
+	//            Log.e(LOGTAG, "Could not find the properties file.", e);
+	//        } finally {
+	//            if (in != null)
+	//                try {
+	//                    in.close();
+	//                } catch (Throwable ignore) {
+	//                }
+	//        }
+	//        return props;
 
 		Properties props = new Properties();
 		try {
 			int id = context.getResources().getIdentifier("androidpn", "raw", context.getPackageName());
 			props.load(context.getResources().openRawResource(id));
 		} catch (Exception e) {
-			Log.e(LOGTAG, "Could not find the properties file.", e);
+			L.e(LOGTAG, "Could not find the properties file.", e);
 			// e.printStackTrace();
 		}
 		return props;
@@ -174,6 +187,11 @@ public final class ServiceManager {
 	//        return apiKey;
 	//    }
 
+	/**
+	 * 设置通知logo
+	 * 
+	 * @param iconId
+	 */
 	public void setNotificationIcon(int iconId) {
 		Editor editor = sharedPrefs.edit();
 		editor.putInt(Constants.NOTIFICATION_ICON, iconId);
@@ -186,8 +204,14 @@ public final class ServiceManager {
 	//        context.startActivity(intent);
 	//    }
 
+	/**
+	 * 进入到通知设置界面
+	 * 
+	 * @param context
+	 */
 	public static void viewNotificationSettings(Context context) {
-		Intent intent = new Intent().setClass(context, NotificationSettingsActivity.class);
+		Intent intent = new Intent().setClass(context,
+				NotificationSettingsActivity.class);
 		context.startActivity(intent);
 	}
 
