@@ -52,8 +52,10 @@ public class Constants {
 
 	// public static final String USER_KEY = "USER_KEY";
 
+	/** 设备ID(手机*#06#) **/
 	public static final String DEVICE_ID = "DEVICE_ID";
 
+	/** 模拟器ID **/
 	public static final String EMULATOR_DEVICE_ID = "EMULATOR_DEVICE_ID";
 
 	/** 通知的logo图片 **/

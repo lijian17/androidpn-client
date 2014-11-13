@@ -30,270 +30,312 @@ import android.content.SharedPreferences.Editor;
 import android.os.IBinder;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
-import android.util.Log;
 
 /**
- * Service that continues to run in background and respond to the push 
- * notification events from the server. This should be registered as service
- * in AndroidManifest.xml. <br>
+ * Service that continues to run in background and respond to the push
+ * notification events from the server. This should be registered as service in
+ * AndroidManifest.xml. <br>
  * 后台运行并响应来自服务器的事件推送通知服务
  * 
  * @author Sehwan Noh (devnoh@gmail.com)
  */
 public class NotificationService extends Service {
 
-    private static final String LOGTAG = LogUtil
-            .makeLogTag(NotificationService.class);
+	private static final String LOGTAG = LogUtil
+			.makeLogTag(NotificationService.class);
 
-    public static final String SERVICE_NAME = "org.androidpn.client.NotificationService";
+	public static final String SERVICE_NAME = "org.androidpn.client.NotificationService";
 
-    private TelephonyManager telephonyManager;
+	/** 手机管理器 **/
+	private TelephonyManager telephonyManager;
 
-    //    private WifiManager wifiManager;
-    //
-    //    private ConnectivityManager connectivityManager;
+	// private WifiManager wifiManager;
+	//
+	// private ConnectivityManager connectivityManager;
 
-    private BroadcastReceiver notificationReceiver;
+	/** 广播接收者(通知栏消息显示) **/
+	private BroadcastReceiver notificationReceiver;
 
-    private BroadcastReceiver connectivityReceiver;
+	/** 网络是否可用广播接收者 **/
+	private BroadcastReceiver connectivityReceiver;
 
-    private PhoneStateListener phoneStateListener;
+	/** 手机状态改变监听(网络数据) **/
+	private PhoneStateListener phoneStateListener;
 
-    private ExecutorService executorService;
+	/** 创建一个单线程池 **/
+	private ExecutorService executorService;
 
-    private TaskSubmitter taskSubmitter;
+	/** 提交一个新的运行任务 **/
+	private TaskSubmitter taskSubmitter;
 
-    private TaskTracker taskTracker;
+	/** 监测(控制)运行中的任务数 **/
+	private TaskTracker taskTracker;
 
-    private XmppManager xmppManager;
+	/** xmpp管理器 **/
+	private XmppManager xmppManager;
 
-    private SharedPreferences sharedPrefs;
+	/** SharedPreferences **/
+	private SharedPreferences sharedPrefs;
 
-    private String deviceId;
+	/** 设备ID **/
+	private String deviceId;
 
-    public NotificationService() {
-        notificationReceiver = new NotificationReceiver();
-        connectivityReceiver = new ConnectivityReceiver(this);
-        phoneStateListener = new PhoneStateChangeListener(this);
-        executorService = Executors.newSingleThreadExecutor();
-        taskSubmitter = new TaskSubmitter(this);
-        taskTracker = new TaskTracker(this);
-    }
+	public NotificationService() {
+		notificationReceiver = new NotificationReceiver();// 广播接收者
+		connectivityReceiver = new ConnectivityReceiver(this);// 网络是否可用广播接收者
+		phoneStateListener = new PhoneStateChangeListener(this);// 手机状态改变监听(网络数据)
+		executorService = Executors.newSingleThreadExecutor();// 创建一个单线程池
+		taskSubmitter = new TaskSubmitter(this);// 提交一个新的运行任务
+		taskTracker = new TaskTracker(this);// 监测(控制)运行中的任务数
+	}
 
-    @Override
-    public void onCreate() {
-        Log.d(LOGTAG, "onCreate()...");
-        telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-        // wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
-        // connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+	@Override
+	public void onCreate() {
+		L.d(LOGTAG, "onCreate()...");
+		telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+		// wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+		// connectivityManager = (ConnectivityManager)
+		// getSystemService(Context.CONNECTIVITY_SERVICE);
 
-        sharedPrefs = getSharedPreferences(Constants.SHARED_PREFERENCE_NAME,
-                Context.MODE_PRIVATE);
+		sharedPrefs = getSharedPreferences(Constants.SHARED_PREFERENCE_NAME,
+				Context.MODE_PRIVATE);
 
-        // Get deviceId
-        deviceId = telephonyManager.getDeviceId();
-        // Log.d(LOGTAG, "deviceId=" + deviceId);
-        Editor editor = sharedPrefs.edit();
-        editor.putString(Constants.DEVICE_ID, deviceId);
-        editor.commit();
+		// Get deviceId
+		deviceId = telephonyManager.getDeviceId();
+		// L.d(LOGTAG, "deviceId=" + deviceId);
+		Editor editor = sharedPrefs.edit();
+		editor.putString(Constants.DEVICE_ID, deviceId);
+		editor.commit();
 
-        // If running on an emulator
-        if (deviceId == null || deviceId.trim().length() == 0
-                || deviceId.matches("0+")) {
-            if (sharedPrefs.contains("EMULATOR_DEVICE_ID")) {
-                deviceId = sharedPrefs.getString(Constants.EMULATOR_DEVICE_ID,
-                        "");
-            } else {
-                deviceId = (new StringBuilder("EMU")).append(
-                        (new Random(System.currentTimeMillis())).nextLong())
-                        .toString();
-                editor.putString(Constants.EMULATOR_DEVICE_ID, deviceId);
-                editor.commit();
-            }
-        }
-        Log.d(LOGTAG, "deviceId=" + deviceId);
+		// 如果在模拟器上运行
+		if (deviceId == null || deviceId.trim().length() == 0
+				|| deviceId.matches("0+")) {
+			if (sharedPrefs.contains("EMULATOR_DEVICE_ID")) {
+				deviceId = sharedPrefs.getString(Constants.EMULATOR_DEVICE_ID,
+						"");
+			} else {
+				// eg:deviceId=EMU8518114886176089842
+				deviceId = (new StringBuilder("EMU")).append(
+						(new Random(System.currentTimeMillis())).nextLong())
+						.toString();
+				editor.putString(Constants.EMULATOR_DEVICE_ID, deviceId);
+				editor.commit();
+			}
+		}
+		L.d(LOGTAG, "deviceId=" + deviceId);
 
-        xmppManager = new XmppManager(this);
+		xmppManager = new XmppManager(this);
 
-        taskSubmitter.submit(new Runnable() {
-            public void run() {
-                NotificationService.this.start();
-            }
-        });
-    }
+		taskSubmitter.submit(new Runnable() {
+			public void run() {
+				NotificationService.this.start();
+			}
+		});
+	}
 
-    @Override
-    public void onStart(Intent intent, int startId) {
-        Log.d(LOGTAG, "onStart()...");
-    }
+	@Override
+	public void onStart(Intent intent, int startId) {
+		L.d(LOGTAG, "onStart()...");
+	}
 
-    @Override
-    public void onDestroy() {
-        Log.d(LOGTAG, "onDestroy()...");
-        stop();
-    }
+	@Override
+	public void onDestroy() {
+		L.d(LOGTAG, "onDestroy()...");
+		stop();
+	}
 
-    @Override
-    public IBinder onBind(Intent intent) {
-        Log.d(LOGTAG, "onBind()...");
-        return null;
-    }
+	@Override
+	public IBinder onBind(Intent intent) {
+		L.d(LOGTAG, "onBind()...");
+		return null;
+	}
 
-    @Override
-    public void onRebind(Intent intent) {
-        Log.d(LOGTAG, "onRebind()...");
-    }
+	@Override
+	public void onRebind(Intent intent) {
+		L.d(LOGTAG, "onRebind()...");
+	}
 
-    @Override
-    public boolean onUnbind(Intent intent) {
-        Log.d(LOGTAG, "onUnbind()...");
-        return true;
-    }
+	@Override
+	public boolean onUnbind(Intent intent) {
+		L.d(LOGTAG, "onUnbind()...");
+		return true;
+	}
 
-    public static Intent getIntent() {
-        return new Intent(SERVICE_NAME);
-    }
+	public static Intent getIntent() {
+		return new Intent(SERVICE_NAME);
+	}
 
-    public ExecutorService getExecutorService() {
-        return executorService;
-    }
+	/**
+	 * 获得线程池
+	 * 
+	 * @return
+	 */
+	public ExecutorService getExecutorService() {
+		return executorService;
+	}
 
-    public TaskSubmitter getTaskSubmitter() {
-        return taskSubmitter;
-    }
+	/**
+	 * 获得提交一个新的运行任务
+	 * 
+	 * @return
+	 */
+	public TaskSubmitter getTaskSubmitter() {
+		return taskSubmitter;
+	}
 
-    public TaskTracker getTaskTracker() {
-        return taskTracker;
-    }
+	/**
+	 * 监测(控制)运行中的任务数
+	 * 
+	 * @return
+	 */
+	public TaskTracker getTaskTracker() {
+		return taskTracker;
+	}
 
-    public XmppManager getXmppManager() {
-        return xmppManager;
-    }
+	/**
+	 * 获得xmpp管理器
+	 * 
+	 * @return
+	 */
+	public XmppManager getXmppManager() {
+		return xmppManager;
+	}
 
-    public SharedPreferences getSharedPreferences() {
-        return sharedPrefs;
-    }
+	/**
+	 * 获得SharedPreferences
+	 * 
+	 * @return
+	 */
+	public SharedPreferences getSharedPreferences() {
+		return sharedPrefs;
+	}
 
-    public String getDeviceId() {
-        return deviceId;
-    }
+	public String getDeviceId() {
+		return deviceId;
+	}
 
-    public void connect() {
-        Log.d(LOGTAG, "connect()...");
-        taskSubmitter.submit(new Runnable() {
-            public void run() {
-                NotificationService.this.getXmppManager().connect();
-            }
-        });
-    }
+	/**
+	 * 网络是连接的
+	 */
+	public void connect() {
+		L.d(LOGTAG, "connect()...");
+		taskSubmitter.submit(new Runnable() {
+			public void run() {
+				NotificationService.this.getXmppManager().connect();
+			}
+		});
+	}
 
-    public void disconnect() {
-        Log.d(LOGTAG, "disconnect()...");
-        taskSubmitter.submit(new Runnable() {
-            public void run() {
-                NotificationService.this.getXmppManager().disconnect();
-            }
-        });
-    }
+	/**
+	 * 网络没有连接
+	 */
+	public void disconnect() {
+		L.d(LOGTAG, "disconnect()...");
+		taskSubmitter.submit(new Runnable() {
+			public void run() {
+				NotificationService.this.getXmppManager().disconnect();
+			}
+		});
+	}
 
-    private void registerNotificationReceiver() {
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(Constants.ACTION_SHOW_NOTIFICATION);
-        filter.addAction(Constants.ACTION_NOTIFICATION_CLICKED);
-        filter.addAction(Constants.ACTION_NOTIFICATION_CLEARED);
-        registerReceiver(notificationReceiver, filter);
-    }
+	private void registerNotificationReceiver() {
+		IntentFilter filter = new IntentFilter();
+		filter.addAction(Constants.ACTION_SHOW_NOTIFICATION);
+		filter.addAction(Constants.ACTION_NOTIFICATION_CLICKED);
+		filter.addAction(Constants.ACTION_NOTIFICATION_CLEARED);
+		registerReceiver(notificationReceiver, filter);
+	}
 
-    private void unregisterNotificationReceiver() {
-        unregisterReceiver(notificationReceiver);
-    }
+	private void unregisterNotificationReceiver() {
+		unregisterReceiver(notificationReceiver);
+	}
 
-    private void registerConnectivityReceiver() {
-        Log.d(LOGTAG, "registerConnectivityReceiver()...");
-        telephonyManager.listen(phoneStateListener,
-                PhoneStateListener.LISTEN_DATA_CONNECTION_STATE);
-        IntentFilter filter = new IntentFilter();
-        // filter.addAction(android.net.wifi.WifiManager.NETWORK_STATE_CHANGED_ACTION);
-        filter.addAction(android.net.ConnectivityManager.CONNECTIVITY_ACTION);
-        registerReceiver(connectivityReceiver, filter);
-    }
+	private void registerConnectivityReceiver() {
+		L.d(LOGTAG, "registerConnectivityReceiver()...");
+		telephonyManager.listen(phoneStateListener,
+				PhoneStateListener.LISTEN_DATA_CONNECTION_STATE);
+		IntentFilter filter = new IntentFilter();
+		// filter.addAction(android.net.wifi.WifiManager.NETWORK_STATE_CHANGED_ACTION);
+		filter.addAction(android.net.ConnectivityManager.CONNECTIVITY_ACTION);
+		registerReceiver(connectivityReceiver, filter);
+	}
 
-    private void unregisterConnectivityReceiver() {
-        Log.d(LOGTAG, "unregisterConnectivityReceiver()...");
-        telephonyManager.listen(phoneStateListener,
-                PhoneStateListener.LISTEN_NONE);
-        unregisterReceiver(connectivityReceiver);
-    }
+	private void unregisterConnectivityReceiver() {
+		L.d(LOGTAG, "unregisterConnectivityReceiver()...");
+		telephonyManager.listen(phoneStateListener,
+				PhoneStateListener.LISTEN_NONE);
+		unregisterReceiver(connectivityReceiver);
+	}
 
-    private void start() {
-        Log.d(LOGTAG, "start()...");
-        registerNotificationReceiver();
-        registerConnectivityReceiver();
-        // Intent intent = getIntent();
-        // startService(intent);
-        xmppManager.connect();
-    }
+	private void start() {
+		L.d(LOGTAG, "start()...");
+		registerNotificationReceiver();
+		registerConnectivityReceiver();
+		// Intent intent = getIntent();
+		// startService(intent);
+		xmppManager.connect();
+	}
 
-    private void stop() {
-        Log.d(LOGTAG, "stop()...");
-        unregisterNotificationReceiver();
-        unregisterConnectivityReceiver();
-        xmppManager.disconnect();
-        executorService.shutdown();
-    }
+	private void stop() {
+		L.d(LOGTAG, "stop()...");
+		unregisterNotificationReceiver();
+		unregisterConnectivityReceiver();
+		xmppManager.disconnect();
+		executorService.shutdown();
+	}
 
-    /**
-     * Class for summiting a new runnable task.
-     */
-    public class TaskSubmitter {
+	/**
+	 * 提交一个新的运行任务
+	 */
+	public class TaskSubmitter {
 
-        final NotificationService notificationService;
+		final NotificationService notificationService;
 
-        public TaskSubmitter(NotificationService notificationService) {
-            this.notificationService = notificationService;
-        }
+		public TaskSubmitter(NotificationService notificationService) {
+			this.notificationService = notificationService;
+		}
 
-        @SuppressWarnings("unchecked")
-        public Future submit(Runnable task) {
-            Future result = null;
-            if (!notificationService.getExecutorService().isTerminated()
-                    && !notificationService.getExecutorService().isShutdown()
-                    && task != null) {
-                result = notificationService.getExecutorService().submit(task);
-            }
-            return result;
-        }
+		@SuppressWarnings("unchecked")
+		public Future submit(Runnable task) {
+			Future result = null;
+			if (!notificationService.getExecutorService().isTerminated()
+					&& !notificationService.getExecutorService().isShutdown()
+					&& task != null) {// 如果线程还在运行
+				result = notificationService.getExecutorService().submit(task);//提交一个任务
+			}
+			return result;
+		}
 
-    }
+	}
 
-    /**
-     * Class for monitoring the running task count.
-     */
-    public class TaskTracker {
+	/**
+	 * 监测(控制)运行中的任务数
+	 */
+	public class TaskTracker {
 
-        final NotificationService notificationService;
+		final NotificationService notificationService;
 
-        public int count;
+		public int count;
 
-        public TaskTracker(NotificationService notificationService) {
-            this.notificationService = notificationService;
-            this.count = 0;
-        }
+		public TaskTracker(NotificationService notificationService) {
+			this.notificationService = notificationService;
+			this.count = 0;
+		}
 
-        public void increase() {
-            synchronized (notificationService.getTaskTracker()) {
-                notificationService.getTaskTracker().count++;
-                Log.d(LOGTAG, "Incremented task count to " + count);
-            }
-        }
+		public void increase() {
+			synchronized (notificationService.getTaskTracker()) {
+				notificationService.getTaskTracker().count++;
+				L.d(LOGTAG, "Incremented task count to " + count);
+			}
+		}
 
-        public void decrease() {
-            synchronized (notificationService.getTaskTracker()) {
-                notificationService.getTaskTracker().count--;
-                Log.d(LOGTAG, "Decremented task count to " + count);
-            }
-        }
+		public void decrease() {
+			synchronized (notificationService.getTaskTracker()) {
+				notificationService.getTaskTracker().count--;
+				L.d(LOGTAG, "Decremented task count to " + count);
+			}
+		}
 
-    }
+	}
 
 }

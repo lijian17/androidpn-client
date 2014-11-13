@@ -73,6 +73,9 @@ public final class NotificationReceiver extends BroadcastReceiver {
             Log.d(LOGTAG, "notificationMessage=" + notificationMessage);
             Log.d(LOGTAG, "notificationUri=" + notificationUri);
 
+            /**
+             * 广播接收者，当收到服务器推送过来的一个信息后，发出一个Notification告诉用户收到了信息，以便查看
+             */
             Notifier notifier = new Notifier(context);
             notifier.notify(notificationId, notificationApiKey,
                     notificationTitle, notificationMessage, notificationUri);

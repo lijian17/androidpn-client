@@ -17,48 +17,58 @@ package org.androidpn.client;
 
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
-import android.util.Log;
 
-/** 
+/**
  * A listener class for monitoring changes in phone connection states. <br>
  * 监听手机状态
- *
+ * 
  * @author Sehwan Noh (devnoh@gmail.com)
  */
 public class PhoneStateChangeListener extends PhoneStateListener {
 
-    private static final String LOGTAG = LogUtil
-            .makeLogTag(PhoneStateChangeListener.class);
+	private static final String LOGTAG = LogUtil
+			.makeLogTag(PhoneStateChangeListener.class);
 
-    private final NotificationService notificationService;
+	private final NotificationService notificationService;
 
-    public PhoneStateChangeListener(NotificationService notificationService) {
-        this.notificationService = notificationService;
-    }
+	public PhoneStateChangeListener(NotificationService notificationService) {
+		this.notificationService = notificationService;
+	}
 
-    @Override
-    public void onDataConnectionStateChanged(int state) {
-        super.onDataConnectionStateChanged(state);
-        Log.d(LOGTAG, "onDataConnectionStateChanged()...");
-        Log.d(LOGTAG, "Data Connection State = " + getState(state));
-        
-        if (state == TelephonyManager.DATA_CONNECTED) {
-            notificationService.connect();
-        }
-    }
+	@Override
+	public void onDataConnectionStateChanged(int state) {
+		super.onDataConnectionStateChanged(state);
+		L.d(LOGTAG, "onDataConnectionStateChanged()...");
+		L.d(LOGTAG, "Data Connection State = " + getState(state));
 
-    private String getState(int state) {
-        switch (state) {
-        case 0: // '\0'
-            return "DATA_DISCONNECTED";
-        case 1: // '\001'
-            return "DATA_CONNECTING";
-        case 2: // '\002'
-            return "DATA_CONNECTED";
-        case 3: // '\003'
-            return "DATA_SUSPENDED";
-        }
-        return "DATA_<UNKNOWN>";
-    }
+		if (state == TelephonyManager.DATA_CONNECTED) {
+			notificationService.connect();
+		}
+
+//		switch (state) {
+//		case TelephonyManager.DATA_DISCONNECTED:// 网络断开
+//			break;
+//		case TelephonyManager.DATA_CONNECTING:// 网络正在连接
+//			break;
+//		case TelephonyManager.DATA_CONNECTED:// 网络连接上
+//			break;
+//		case TelephonyManager.DATA_SUSPENDED:// 暂停的，悬浮的(如在2G网络下：电话来的，网络数据暂停)
+//			break;
+//		}
+	}
+
+	private String getState(int state) {
+		switch (state) {
+		case 0: // '\0'
+			return "DATA_DISCONNECTED";
+		case 1: // '\001'
+			return "DATA_CONNECTING";
+		case 2: // '\002'
+			return "DATA_CONNECTED";
+		case 3: // '\003'
+			return "DATA_SUSPENDED";
+		}
+		return "DATA_<UNKNOWN>";
+	}
 
 }
