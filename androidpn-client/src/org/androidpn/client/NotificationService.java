@@ -41,8 +41,7 @@ import android.telephony.TelephonyManager;
  */
 public class NotificationService extends Service {
 
-	private static final String LOGTAG = LogUtil
-			.makeLogTag(NotificationService.class);
+	private static final String LOGTAG = LogUtil.makeLogTag(NotificationService.class);
 
 	public static final String SERVICE_NAME = "org.androidpn.client.NotificationService";
 
@@ -97,8 +96,7 @@ public class NotificationService extends Service {
 		// connectivityManager = (ConnectivityManager)
 		// getSystemService(Context.CONNECTIVITY_SERVICE);
 
-		sharedPrefs = getSharedPreferences(Constants.SHARED_PREFERENCE_NAME,
-				Context.MODE_PRIVATE);
+		sharedPrefs = getSharedPreferences(Constants.SHARED_PREFERENCE_NAME, Context.MODE_PRIVATE);
 
 		// Get deviceId
 		deviceId = telephonyManager.getDeviceId();
@@ -108,16 +106,12 @@ public class NotificationService extends Service {
 		editor.commit();
 
 		// 如果在模拟器上运行
-		if (deviceId == null || deviceId.trim().length() == 0
-				|| deviceId.matches("0+")) {
+		if (deviceId == null || deviceId.trim().length() == 0 || deviceId.matches("0+")) {
 			if (sharedPrefs.contains("EMULATOR_DEVICE_ID")) {
-				deviceId = sharedPrefs.getString(Constants.EMULATOR_DEVICE_ID,
-						"");
+				deviceId = sharedPrefs.getString(Constants.EMULATOR_DEVICE_ID, "");
 			} else {
 				// eg:deviceId=EMU8518114886176089842
-				deviceId = (new StringBuilder("EMU")).append(
-						(new Random(System.currentTimeMillis())).nextLong())
-						.toString();
+				deviceId = (new StringBuilder("EMU")).append((new Random(System.currentTimeMillis())).nextLong()).toString();
 				editor.putString(Constants.EMULATOR_DEVICE_ID, deviceId);
 				editor.commit();
 			}
@@ -161,6 +155,11 @@ public class NotificationService extends Service {
 		return true;
 	}
 
+	/**
+	 * 获得一个意图(org.androidpn.client.NotificationService)
+	 * 
+	 * @return
+	 */
 	public static Intent getIntent() {
 		return new Intent(SERVICE_NAME);
 	}
@@ -210,6 +209,11 @@ public class NotificationService extends Service {
 		return sharedPrefs;
 	}
 
+	/**
+	 * 获得设备ID
+	 * 
+	 * @return
+	 */
 	public String getDeviceId() {
 		return deviceId;
 	}
@@ -238,6 +242,9 @@ public class NotificationService extends Service {
 		});
 	}
 
+	/**
+	 * 注册广播接收者(通知栏消息显示)
+	 */
 	private void registerNotificationReceiver() {
 		IntentFilter filter = new IntentFilter();
 		filter.addAction(Constants.ACTION_SHOW_NOTIFICATION);
@@ -246,24 +253,31 @@ public class NotificationService extends Service {
 		registerReceiver(notificationReceiver, filter);
 	}
 
+	/**
+	 * 取消注册的广播接收者(通知栏消息显示)
+	 */
 	private void unregisterNotificationReceiver() {
 		unregisterReceiver(notificationReceiver);
 	}
 
+	/**
+	 * 注册(网络是否可用广播接收者 )
+	 */
 	private void registerConnectivityReceiver() {
 		L.d(LOGTAG, "registerConnectivityReceiver()...");
-		telephonyManager.listen(phoneStateListener,
-				PhoneStateListener.LISTEN_DATA_CONNECTION_STATE);
+		telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_DATA_CONNECTION_STATE);
 		IntentFilter filter = new IntentFilter();
 		// filter.addAction(android.net.wifi.WifiManager.NETWORK_STATE_CHANGED_ACTION);
 		filter.addAction(android.net.ConnectivityManager.CONNECTIVITY_ACTION);
 		registerReceiver(connectivityReceiver, filter);
 	}
 
+	/**
+	 * 取消注册的(网络是否可用广播接收者 )
+	 */
 	private void unregisterConnectivityReceiver() {
 		L.d(LOGTAG, "unregisterConnectivityReceiver()...");
-		telephonyManager.listen(phoneStateListener,
-				PhoneStateListener.LISTEN_NONE);
+		telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_NONE);
 		unregisterReceiver(connectivityReceiver);
 	}
 
@@ -298,9 +312,7 @@ public class NotificationService extends Service {
 		@SuppressWarnings("unchecked")
 		public Future submit(Runnable task) {
 			Future result = null;
-			if (!notificationService.getExecutorService().isTerminated()
-					&& !notificationService.getExecutorService().isShutdown()
-					&& task != null) {// 如果线程还在运行
+			if (!notificationService.getExecutorService().isTerminated() && !notificationService.getExecutorService().isShutdown() && task != null) {// 如果线程还在运行
 				result = notificationService.getExecutorService().submit(task);//提交一个任务
 			}
 			return result;

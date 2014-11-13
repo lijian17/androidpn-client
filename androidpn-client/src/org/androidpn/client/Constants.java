@@ -95,8 +95,10 @@ public class Constants {
 	/** 显示通知 **/
 	public static final String ACTION_SHOW_NOTIFICATION = "org.androidpn.client.SHOW_NOTIFICATION";
 
+	/** 通知被点击 **/
 	public static final String ACTION_NOTIFICATION_CLICKED = "org.androidpn.client.NOTIFICATION_CLICKED";
 
+	/** 清除通知 **/
 	public static final String ACTION_NOTIFICATION_CLEARED = "org.androidpn.client.NOTIFICATION_CLEARED";
 
 }
