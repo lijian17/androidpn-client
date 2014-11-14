@@ -41,7 +41,8 @@ import android.telephony.TelephonyManager;
  */
 public class NotificationService extends Service {
 
-	private static final String LOGTAG = LogUtil.makeLogTag(NotificationService.class);
+	private static final String LOGTAG = LogUtil
+			.makeLogTag(NotificationService.class);
 
 	public static final String SERVICE_NAME = "org.androidpn.client.NotificationService";
 
@@ -96,7 +97,8 @@ public class NotificationService extends Service {
 		// connectivityManager = (ConnectivityManager)
 		// getSystemService(Context.CONNECTIVITY_SERVICE);
 
-		sharedPrefs = getSharedPreferences(Constants.SHARED_PREFERENCE_NAME, Context.MODE_PRIVATE);
+		sharedPrefs = getSharedPreferences(Constants.SHARED_PREFERENCE_NAME,
+				Context.MODE_PRIVATE);
 
 		// Get deviceId
 		deviceId = telephonyManager.getDeviceId();
@@ -106,12 +108,16 @@ public class NotificationService extends Service {
 		editor.commit();
 
 		// 如果在模拟器上运行
-		if (deviceId == null || deviceId.trim().length() == 0 || deviceId.matches("0+")) {
+		if (deviceId == null || deviceId.trim().length() == 0
+				|| deviceId.matches("0+")) {
 			if (sharedPrefs.contains("EMULATOR_DEVICE_ID")) {
-				deviceId = sharedPrefs.getString(Constants.EMULATOR_DEVICE_ID, "");
+				deviceId = sharedPrefs.getString(Constants.EMULATOR_DEVICE_ID,
+						"");
 			} else {
 				// eg:deviceId=EMU8518114886176089842
-				deviceId = (new StringBuilder("EMU")).append((new Random(System.currentTimeMillis())).nextLong()).toString();
+				deviceId = (new StringBuilder("EMU")).append(
+						(new Random(System.currentTimeMillis())).nextLong())
+						.toString();
 				editor.putString(Constants.EMULATOR_DEVICE_ID, deviceId);
 				editor.commit();
 			}
@@ -225,6 +231,7 @@ public class NotificationService extends Service {
 		L.d(LOGTAG, "connect()...");
 		taskSubmitter.submit(new Runnable() {
 			public void run() {
+				// 使xmpp连接网络
 				NotificationService.this.getXmppManager().connect();
 			}
 		});
@@ -265,8 +272,9 @@ public class NotificationService extends Service {
 	 */
 	private void registerConnectivityReceiver() {
 		L.d(LOGTAG, "registerConnectivityReceiver()...");
-		//监听数据连接状态
-		telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_DATA_CONNECTION_STATE);
+		// 监听数据连接状态
+		telephonyManager.listen(phoneStateListener,
+				PhoneStateListener.LISTEN_DATA_CONNECTION_STATE);
 		IntentFilter filter = new IntentFilter();
 		// filter.addAction(android.net.wifi.WifiManager.NETWORK_STATE_CHANGED_ACTION);
 		filter.addAction(android.net.ConnectivityManager.CONNECTIVITY_ACTION);
@@ -278,8 +286,9 @@ public class NotificationService extends Service {
 	 */
 	private void unregisterConnectivityReceiver() {
 		L.d(LOGTAG, "unregisterConnectivityReceiver()...");
-		//停止监听
-		telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_NONE);
+		// 停止监听
+		telephonyManager.listen(phoneStateListener,
+				PhoneStateListener.LISTEN_NONE);
 		unregisterReceiver(connectivityReceiver);
 	}
 
@@ -292,7 +301,7 @@ public class NotificationService extends Service {
 		registerConnectivityReceiver();
 		// Intent intent = getIntent();
 		// startService(intent);
-		xmppManager.connect();
+		xmppManager.connect();// 建立连接
 	}
 
 	/**
@@ -302,8 +311,8 @@ public class NotificationService extends Service {
 		L.d(LOGTAG, "stop()...");
 		unregisterNotificationReceiver();
 		unregisterConnectivityReceiver();
-		xmppManager.disconnect();
-		executorService.shutdown();
+		xmppManager.disconnect();// 断开连接
+		executorService.shutdown();// 断开线程
 	}
 
 	/**
@@ -317,11 +326,20 @@ public class NotificationService extends Service {
 			this.notificationService = notificationService;
 		}
 
+		/**
+		 * 提交一个任务到线程,(得到一个将来的结果)
+		 * 
+		 * @param task
+		 *            要被执行的任务
+		 * @return
+		 */
 		@SuppressWarnings("unchecked")
 		public Future submit(Runnable task) {
 			Future result = null;
-			if (!notificationService.getExecutorService().isTerminated() && !notificationService.getExecutorService().isShutdown() && task != null) {// 如果线程还在运行
-				result = notificationService.getExecutorService().submit(task);//提交一个任务
+			if (!notificationService.getExecutorService().isTerminated()
+					&& !notificationService.getExecutorService().isShutdown()
+					&& task != null) {// 如果线程还在运行
+				result = notificationService.getExecutorService().submit(task);// 提交一个任务
 			}
 			return result;
 		}
@@ -342,6 +360,9 @@ public class NotificationService extends Service {
 			this.count = 0;
 		}
 
+		/**
+		 * 增加
+		 */
 		public void increase() {
 			synchronized (notificationService.getTaskTracker()) {
 				notificationService.getTaskTracker().count++;
@@ -349,6 +370,9 @@ public class NotificationService extends Service {
 			}
 		}
 
+		/**
+		 * 减少
+		 */
 		public void decrease() {
 			synchronized (notificationService.getTaskTracker()) {
 				notificationService.getTaskTracker().count--;

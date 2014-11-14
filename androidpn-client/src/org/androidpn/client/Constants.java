@@ -46,8 +46,10 @@ public class Constants {
 	/** XMPP的端口 **/
 	public static final String XMPP_PORT = "XMPP_PORT";
 
+	/** XMPP的用户名 **/
 	public static final String XMPP_USERNAME = "XMPP_USERNAME";
 
+	/** XMPP的密码 **/
 	public static final String XMPP_PASSWORD = "XMPP_PASSWORD";
 
 	// public static final String USER_KEY = "USER_KEY";

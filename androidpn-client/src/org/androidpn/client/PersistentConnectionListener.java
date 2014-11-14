@@ -17,53 +17,71 @@ package org.androidpn.client;
 
 import org.jivesoftware.smack.ConnectionListener;
 
-import android.util.Log;
-
-/** 
+/**
  * A listener class for monitoring connection closing and reconnection events.<br>
  * 监控客户端与服务器之间的连接关闭和重新连接事件
- *
+ * 
  * @author Sehwan Noh (devnoh@gmail.com)
  */
 public class PersistentConnectionListener implements ConnectionListener {
 
-    private static final String LOGTAG = LogUtil
-            .makeLogTag(PersistentConnectionListener.class);
+	private static final String LOGTAG = LogUtil
+			.makeLogTag(PersistentConnectionListener.class);
 
-    private final XmppManager xmppManager;
+	private final XmppManager xmppManager;
 
-    public PersistentConnectionListener(XmppManager xmppManager) {
-        this.xmppManager = xmppManager;
-    }
+	/**
+	 * 持久连接监听器
+	 * 
+	 * @param xmppManager
+	 */
+	public PersistentConnectionListener(XmppManager xmppManager) {
+		this.xmppManager = xmppManager;
+	}
 
-    @Override
-    public void connectionClosed() {
-        Log.d(LOGTAG, "connectionClosed()...");
-    }
+	/**
+	 * 连接正常断开
+	 */
+	@Override
+	public void connectionClosed() {
+		L.d(LOGTAG, "connectionClosed()...");
+	}
 
-    @Override
-    public void connectionClosedOnError(Exception e) {
-        Log.d(LOGTAG, "connectionClosedOnError()...");
-        if (xmppManager.getConnection() != null
-                && xmppManager.getConnection().isConnected()) {
-            xmppManager.getConnection().disconnect();
-        }
-        xmppManager.startReconnectionThread();
-    }
+	/**
+	 * 连接异常断开
+	 */
+	@Override
+	public void connectionClosedOnError(Exception e) {
+		L.d(LOGTAG, "connectionClosedOnError()...");
+		if (xmppManager.getConnection() != null
+				&& xmppManager.getConnection().isConnected()) {// 如果连接不为空,且是连接状态的
+			xmppManager.getConnection().disconnect();// 断开连接
+		}
+		xmppManager.startReconnectionThread();
+	}
 
-    @Override
-    public void reconnectingIn(int seconds) {
-        Log.d(LOGTAG, "reconnectingIn()...");
-    }
+	/**
+	 * 重新连接ing
+	 */
+	@Override
+	public void reconnectingIn(int seconds) {
+		L.d(LOGTAG, "reconnectingIn()...");
+	}
 
-    @Override
-    public void reconnectionFailed(Exception e) {
-        Log.d(LOGTAG, "reconnectionFailed()...");
-    }
+	/**
+	 * 重新连接失败
+	 */
+	@Override
+	public void reconnectionFailed(Exception e) {
+		L.d(LOGTAG, "reconnectionFailed()...");
+	}
 
-    @Override
-    public void reconnectionSuccessful() {
-        Log.d(LOGTAG, "reconnectionSuccessful()...");
-    }
+	/**
+	 * 重新连接成功
+	 */
+	@Override
+	public void reconnectionSuccessful() {
+		L.d(LOGTAG, "reconnectionSuccessful()...");
+	}
 
 }

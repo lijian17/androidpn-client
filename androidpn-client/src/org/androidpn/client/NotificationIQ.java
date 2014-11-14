@@ -35,9 +35,19 @@ public class NotificationIQ extends IQ {
 
     private String uri;
 
+    /**
+     * 通知实体
+     */
     public NotificationIQ() {
     }
 
+    /**
+	   <iq id="857-94" to="8e302d850bed414e98dd866fc2bac421@127.0.0.1/AndroidpnClient" type="set">
+			<notification xmlns="androidpn:iq:notification">
+				<id>13866063</id>
+			</notification> 
+		</iq>
+     */
     @Override
     public String getChildElementXML() {
         StringBuilder buf = new StringBuilder();
