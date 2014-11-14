@@ -254,7 +254,7 @@ public class NotificationService extends Service {
 	}
 
 	/**
-	 * 取消注册的广播接收者(通知栏消息显示)
+	 * 注销广播接收者(通知栏消息显示)
 	 */
 	private void unregisterNotificationReceiver() {
 		unregisterReceiver(notificationReceiver);
@@ -265,6 +265,7 @@ public class NotificationService extends Service {
 	 */
 	private void registerConnectivityReceiver() {
 		L.d(LOGTAG, "registerConnectivityReceiver()...");
+		//监听数据连接状态
 		telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_DATA_CONNECTION_STATE);
 		IntentFilter filter = new IntentFilter();
 		// filter.addAction(android.net.wifi.WifiManager.NETWORK_STATE_CHANGED_ACTION);
@@ -273,14 +274,18 @@ public class NotificationService extends Service {
 	}
 
 	/**
-	 * 取消注册的(网络是否可用广播接收者 )
+	 * 注销(网络是否可用广播接收者 )
 	 */
 	private void unregisterConnectivityReceiver() {
 		L.d(LOGTAG, "unregisterConnectivityReceiver()...");
+		//停止监听
 		telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_NONE);
 		unregisterReceiver(connectivityReceiver);
 	}
 
+	/**
+	 * 注册广播接收者(通知栏、网络)
+	 */
 	private void start() {
 		L.d(LOGTAG, "start()...");
 		registerNotificationReceiver();
@@ -290,6 +295,9 @@ public class NotificationService extends Service {
 		xmppManager.connect();
 	}
 
+	/**
+	 * 注销广播接收者(通知栏、网络)
+	 */
 	private void stop() {
 		L.d(LOGTAG, "stop()...");
 		unregisterNotificationReceiver();
