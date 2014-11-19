@@ -32,11 +32,12 @@ public class NotificationIQProvider implements IQProvider {
 
 	@Override
 	public IQ parseIQ(XmlPullParser parser) throws Exception {
-
+		//通过XmlPullParser解析xml,并将其转化为一个NotificationIQ
+		//创建一个通知实体
 		NotificationIQ notification = new NotificationIQ();
 		for (boolean done = false; !done;) {
 			int eventType = parser.next();
-			if (eventType == 2) {
+			if (eventType == XmlPullParser.START_TAG) {
 				if ("id".equals(parser.getName())) {
 					notification.setId(parser.nextText());
 				}
@@ -52,8 +53,7 @@ public class NotificationIQProvider implements IQProvider {
 				if ("uri".equals(parser.getName())) {
 					notification.setUri(parser.nextText());
 				}
-			} else if (eventType == 3
-					&& "notification".equals(parser.getName())) {
+			} else if (eventType == XmlPullParser.END_TAG && "notification".equals(parser.getName())) {
 				done = true;
 			}
 		}

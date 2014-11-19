@@ -47,7 +47,14 @@ public class NotificationIQ extends IQ {
 				<id>13866063</id>
 			</notification> 
 		</iq>
-     */
+	 * <pre>
+	 * &lt;iq id="857-94" to="8e302d850bed414e98dd866fc2bac421@127.0.0.1/AndroidpnClient" type="set"&gt;
+	 * 	&lt;notification xmlns="androidpn:iq:notification"&gt;
+	 * 		&lt;id&gt;13866063&lt;/id&gt;
+	 * 	&lt;/notification&gt; 
+	 * &lt;/iq&gt;
+	 * </pre>
+	 */
     @Override
     public String getChildElementXML() {
         StringBuilder buf = new StringBuilder();
