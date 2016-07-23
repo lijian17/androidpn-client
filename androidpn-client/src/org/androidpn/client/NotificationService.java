@@ -60,7 +60,7 @@ public class NotificationService extends Service {
 	/** 任务提交器 **/
 	private TaskSubmitter taskSubmitter;
 
-	/** 获得任务数量追踪器 **/
+	/** 任务数量追踪器 **/
 	private TaskTracker taskTracker;
 
 	/** xmpp管理器 **/

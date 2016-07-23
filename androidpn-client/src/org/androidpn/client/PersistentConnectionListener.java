@@ -18,20 +18,18 @@ package org.androidpn.client;
 import org.jivesoftware.smack.ConnectionListener;
 
 /**
- * A listener class for monitoring connection closing and reconnection events.<br>
- * 监控客户端与服务器之间的连接关闭和重新连接事件
+ * 监控客户端与服务器之间的连接关闭和重新连接事件(长连接监听器)
  * 
- * @author Sehwan Noh (devnoh@gmail.com)
+ * @author lijian
+ * @date 2016-7-23 下午11:32:14
  */
 public class PersistentConnectionListener implements ConnectionListener {
-
-	private static final String LOGTAG = LogUtil
-			.makeLogTag(PersistentConnectionListener.class);
+	private static final String TAG = "PersistentConnectionListener";
 
 	private final XmppManager xmppManager;
 
 	/**
-	 * 持久连接监听器
+	 * 长连接监听器
 	 * 
 	 * @param xmppManager
 	 */
@@ -44,7 +42,7 @@ public class PersistentConnectionListener implements ConnectionListener {
 	 */
 	@Override
 	public void connectionClosed() {
-		L.d(LOGTAG, "connectionClosed()...");
+		L.i(TAG, "connectionClosed()...");
 	}
 
 	/**
@@ -52,7 +50,7 @@ public class PersistentConnectionListener implements ConnectionListener {
 	 */
 	@Override
 	public void connectionClosedOnError(Exception e) {
-		L.d(LOGTAG, "connectionClosedOnError()...");
+		L.i(TAG, "connectionClosedOnError()...");
 		if (xmppManager.getConnection() != null
 				&& xmppManager.getConnection().isConnected()) {// 如果连接不为空,且是连接状态的
 			xmppManager.getConnection().disconnect();// 断开连接
@@ -65,7 +63,7 @@ public class PersistentConnectionListener implements ConnectionListener {
 	 */
 	@Override
 	public void reconnectingIn(int seconds) {
-		L.d(LOGTAG, "reconnectingIn()...");
+		L.i(TAG, "reconnectingIn()...");
 	}
 
 	/**
@@ -73,7 +71,7 @@ public class PersistentConnectionListener implements ConnectionListener {
 	 */
 	@Override
 	public void reconnectionFailed(Exception e) {
-		L.d(LOGTAG, "reconnectionFailed()...");
+		L.i(TAG, "reconnectionFailed()...");
 	}
 
 	/**
@@ -81,7 +79,7 @@ public class PersistentConnectionListener implements ConnectionListener {
 	 */
 	@Override
 	public void reconnectionSuccessful() {
-		L.d(LOGTAG, "reconnectionSuccessful()...");
+		L.i(TAG, "reconnectionSuccessful()...");
 	}
 
 }

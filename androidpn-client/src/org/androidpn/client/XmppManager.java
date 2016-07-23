@@ -42,14 +42,13 @@ import android.os.Handler;
 import android.util.Log;
 
 /**
- * This class is to manage the XMPP connection between client and server.<br>
  * 管理客户端和服务器之间的连接，向服务器发送连接、注册、登陆请求任务
  * 
- * @author Sehwan Noh (devnoh@gmail.com)
+ * @author lijian
+ * @date 2016-7-23 下午11:10:02
  */
 public class XmppManager {
-
-	private static final String LOGTAG = LogUtil.makeLogTag(XmppManager.class);
+	private static final String TAG = "XmppManager";
 
 	/** XMPP资源名称 **/
 	private static final String XMPP_RESOURCE_NAME = "AndroidpnClient";
@@ -57,10 +56,10 @@ public class XmppManager {
 	/** 上下文 **/
 	private Context context;
 
-	/** 获得提交一个新的运行任务 **/
+	/** 任务提交器 **/
 	private NotificationService.TaskSubmitter taskSubmitter;
 
-	/** 监测(控制)运行中的任务数 **/
+	/** 任务数量追踪器 **/
 	private NotificationService.TaskTracker taskTracker;
 
 	/** 获得SharedPreferences **/
@@ -75,10 +74,10 @@ public class XmppManager {
 	/** 一个xmpp连接 **/
 	private XMPPConnection connection;
 
-	/** XMPP的用户名  **/
+	/** XMPP的用户名 **/
 	private String username;
 
-	/** XMPP的密码  **/
+	/** XMPP的密码 **/
 	private String password;
 
 	/** 持久连接监听器 **/
@@ -130,7 +129,7 @@ public class XmppManager {
 	 * 建立连接
 	 */
 	public void connect() {
-		L.d(LOGTAG, "connect()...");
+		L.d(TAG, "connect()...");
 		submitLoginTask();
 	}
 
@@ -138,7 +137,7 @@ public class XmppManager {
 	 * 断开连接
 	 */
 	public void disconnect() {
-		L.d(LOGTAG, "disconnect()...");
+		L.d(TAG, "disconnect()...");
 		terminatePersistentConnection();
 	}
 
@@ -146,14 +145,14 @@ public class XmppManager {
 	 * 终止持久连接
 	 */
 	public void terminatePersistentConnection() {
-		L.d(LOGTAG, "terminatePersistentConnection()...");
+		L.d(TAG, "terminatePersistentConnection()...");
 		Runnable runnable = new Runnable() {
 
 			final XmppManager xmppManager = XmppManager.this;
 
 			public void run() {
 				if (xmppManager.isConnected()) {
-					L.d(LOGTAG, "terminatePersistentConnection()... run()");
+					L.d(TAG, "terminatePersistentConnection()... run()");
 					xmppManager.getConnection().removePacketListener(
 							xmppManager.getNotificationPacketListener());
 					xmppManager.getConnection().disconnect();
@@ -167,6 +166,7 @@ public class XmppManager {
 
 	/**
 	 * 得到xmpp连接
+	 * 
 	 * @return
 	 */
 	public XMPPConnection getConnection() {
@@ -175,7 +175,9 @@ public class XmppManager {
 
 	/**
 	 * 设置连接
-	 * @param connection 一个xmpp连接
+	 * 
+	 * @param connection
+	 *            一个xmpp连接
 	 */
 	public void setConnection(XMPPConnection connection) {
 		this.connection = connection;
@@ -183,6 +185,7 @@ public class XmppManager {
 
 	/**
 	 * 得到xmpp的用户名
+	 * 
 	 * @return
 	 */
 	public String getUsername() {
@@ -191,6 +194,7 @@ public class XmppManager {
 
 	/**
 	 * 设置xmpp的用户名
+	 * 
 	 * @param username
 	 */
 	public void setUsername(String username) {
@@ -199,6 +203,7 @@ public class XmppManager {
 
 	/**
 	 * 得到xmpp的密码
+	 * 
 	 * @return
 	 */
 	public String getPassword() {
@@ -207,6 +212,7 @@ public class XmppManager {
 
 	/**
 	 * 设置xmpp的密码
+	 * 
 	 * @param password
 	 */
 	public void setPassword(String password) {
@@ -214,7 +220,8 @@ public class XmppManager {
 	}
 
 	/**
-	 * 得到持久连接监听器 
+	 * 得到持久连接监听器
+	 * 
 	 * @return
 	 */
 	public ConnectionListener getConnectionListener() {
@@ -222,7 +229,8 @@ public class XmppManager {
 	}
 
 	/**
-	 * 得到通知数据包监听器 
+	 * 得到通知数据包监听器
+	 * 
 	 * @return
 	 */
 	public PacketListener getNotificationPacketListener() {
@@ -256,6 +264,7 @@ public class XmppManager {
 
 	/**
 	 * 得到任务列表
+	 * 
 	 * @return
 	 */
 	public List<Runnable> getTaskList() {
@@ -264,6 +273,7 @@ public class XmppManager {
 
 	/**
 	 * 得到任务将来结果
+	 * 
 	 * @return
 	 */
 	public Future<?> getFutureTask() {
@@ -274,7 +284,7 @@ public class XmppManager {
 	 * 运行任务
 	 */
 	public void runTask() {
-		L.d(LOGTAG, "runTask()...");
+		L.d(TAG, "runTask()...");
 		synchronized (taskList) {
 			running = false;
 			futureTask = null;
@@ -289,21 +299,23 @@ public class XmppManager {
 			}
 		}
 		taskTracker.decrease();
-		L.d(LOGTAG, "runTask()...done");
+		L.d(TAG, "runTask()...done");
 	}
 
 	/**
 	 * 得到一个随机生成的UUID
+	 * 
 	 * @return
 	 */
 	private String newRandomUUID() {
 		String uuidRaw = UUID.randomUUID().toString();
-		System.out.println("UUID--->"+uuidRaw);
+		System.out.println("UUID--->" + uuidRaw);
 		return uuidRaw.replaceAll("-", "");
 	}
 
 	/**
 	 * xmpp连接是否建立并连接成功
+	 * 
 	 * @return
 	 */
 	private boolean isConnected() {
@@ -312,6 +324,7 @@ public class XmppManager {
 
 	/**
 	 * 建立连接成功的账户是否被认证
+	 * 
 	 * @return
 	 */
 	private boolean isAuthenticated() {
@@ -321,6 +334,7 @@ public class XmppManager {
 
 	/**
 	 * 是否是已注册的xmpp用户
+	 * 
 	 * @return
 	 */
 	private boolean isRegistered() {
@@ -332,7 +346,7 @@ public class XmppManager {
 	 * 提交连接任务
 	 */
 	private void submitConnectTask() {
-		L.d(LOGTAG, "submitConnectTask()...");
+		L.d(TAG, "submitConnectTask()...");
 		addTask(new ConnectTask());
 	}
 
@@ -340,7 +354,7 @@ public class XmppManager {
 	 * 提交注册任务
 	 */
 	private void submitRegisterTask() {
-		L.d(LOGTAG, "submitRegisterTask()...");
+		L.d(TAG, "submitRegisterTask()...");
 		submitConnectTask();
 		addTask(new RegisterTask());
 	}
@@ -349,7 +363,7 @@ public class XmppManager {
 	 * 提交登录任务
 	 */
 	private void submitLoginTask() {
-		L.d(LOGTAG, "submitLoginTask()...");
+		L.d(TAG, "submitLoginTask()...");
 		submitRegisterTask();
 		addTask(new LoginTask());
 	}
@@ -360,20 +374,20 @@ public class XmppManager {
 	 * @param runnable
 	 */
 	private void addTask(Runnable runnable) {
-		L.d(LOGTAG, "addTask(runnable)...");
+		L.d(TAG, "addTask(runnable)...");
 		taskTracker.increase();
 		synchronized (taskList) {
-			if (taskList.isEmpty() && !running) {//如果任务列表为空,并且没有任务在运行中
+			if (taskList.isEmpty() && !running) {// 如果任务列表为空,并且没有任务在运行中
 				running = true;
 				futureTask = taskSubmitter.submit(runnable);
-				if (futureTask == null) {//如果得到的将来的结果为null
+				if (futureTask == null) {// 如果得到的将来的结果为null
 					taskTracker.decrease();
 				}
 			} else {
 				taskList.add(runnable);
 			}
 		}
-		L.d(LOGTAG, "addTask(runnable)... done");
+		L.d(TAG, "addTask(runnable)... done");
 	}
 
 	/**
@@ -387,8 +401,7 @@ public class XmppManager {
 	}
 
 	/**
-	 * A runnable task to connect the server.
-	 * 创建一个线程-->连接到服务器的
+	 * A runnable task to connect the server. 创建一个线程-->连接到服务器的
 	 */
 	private class ConnectTask implements Runnable {
 
@@ -399,19 +412,19 @@ public class XmppManager {
 		}
 
 		public void run() {
-			L.i(LOGTAG, "ConnectTask.run()...");
+			L.i(TAG, "ConnectTask.run()...");
 
 			if (!xmppManager.isConnected()) {
 				// Create the configuration for this new connection
-				//给这个新的xmpp连接创建一个配置信息
+				// 给这个新的xmpp连接创建一个配置信息
 				ConnectionConfiguration connConfig = new ConnectionConfiguration(
 						xmppHost, xmppPort);
 				// connConfig.setSecurityMode(SecurityMode.disabled);
-				connConfig.setSecurityMode(SecurityMode.required);//设置安全模式
-				connConfig.setSASLAuthenticationEnabled(false);//设置SASL认证是否启用
-				connConfig.setCompressionEnabled(false);//设置数据压缩是否启用
+				connConfig.setSecurityMode(SecurityMode.required);// 设置安全模式
+				connConfig.setSASLAuthenticationEnabled(false);// 设置SASL认证是否启用
+				connConfig.setCompressionEnabled(false);// 设置数据压缩是否启用
 
-				//新建一个xmpp连接
+				// 新建一个xmpp连接
 				XMPPConnection connection = new XMPPConnection(connConfig);
 				xmppManager.setConnection(connection);
 
@@ -419,7 +432,7 @@ public class XmppManager {
 					// Connect to the server
 					// 连接到服务器
 					connection.connect();
-					L.i(LOGTAG, "XMPP connected successfully");
+					L.i(TAG, "XMPP connected successfully");
 
 					// packet provider
 					// 添加一个数据包(IQ)提供者
@@ -428,14 +441,14 @@ public class XmppManager {
 							new NotificationIQProvider());
 
 				} catch (XMPPException e) {
-					L.e(LOGTAG, "XMPP connection failed", e);
+					L.e(TAG, "XMPP connection failed", e);
 				}
 
 				xmppManager.runTask();
 
 			} else {
-				//如果XMPP连接之前已经建立,那么就运行这个任务
-				L.i(LOGTAG, "XMPP connected already");
+				// 如果XMPP连接之前已经建立,那么就运行这个任务
+				L.i(TAG, "XMPP connected already");
 				xmppManager.runTask();
 			}
 		}
@@ -454,36 +467,39 @@ public class XmppManager {
 		}
 
 		public void run() {
-			L.i(LOGTAG, "RegisterTask.run()...");
+			L.i(TAG, "RegisterTask.run()...");
 
 			if (!xmppManager.isRegistered()) {
 				final String newUsername = newRandomUUID();
 				final String newPassword = newRandomUUID();
 
-				//创建一个限量注册
+				// 创建一个限量注册
 				Registration registration = new Registration();
 
-				//数据包过滤器
+				// 数据包过滤器
 				PacketFilter packetFilter = new AndFilter(new PacketIDFilter(
 						registration.getPacketID()), new PacketTypeFilter(
 						IQ.class));
 
-				//数据包监听
+				// 数据包监听
 				PacketListener packetListener = new PacketListener() {
 
 					/**
 					 * 数据包过程
 					 */
 					public void processPacket(Packet packet) {
-						L.d("RegisterTask.PacketListener", "processPacket().....");
-						L.d("RegisterTask.PacketListener", "packet=" + packet.toXML());
+						L.d("RegisterTask.PacketListener",
+								"processPacket().....");
+						L.d("RegisterTask.PacketListener",
+								"packet=" + packet.toXML());
 
-						if (packet instanceof IQ) {//如果是iq,强转为IQ
+						if (packet instanceof IQ) {// 如果是iq,强转为IQ
 							IQ response = (IQ) packet;
-							if (response.getType() == IQ.Type.ERROR) {//如果是一个错误消息数据包
-								if (!response.getError().toString().contains("409")) {
-									//注册XMPP帐户时未知错误！
-									L.e(LOGTAG,
+							if (response.getType() == IQ.Type.ERROR) {// 如果是一个错误消息数据包
+								if (!response.getError().toString()
+										.contains("409")) {
+									// 注册XMPP帐户时未知错误！
+									L.e(TAG,
 											"Unknown error while registering XMPP account! "
 													+ response.getError()
 															.getCondition());
@@ -491,44 +507,46 @@ public class XmppManager {
 							} else if (response.getType() == IQ.Type.RESULT) {
 								xmppManager.setUsername(newUsername);
 								xmppManager.setPassword(newPassword);
-								L.d(LOGTAG, "username=" + newUsername);
-								L.d(LOGTAG, "password=" + newPassword);
+								L.d(TAG, "username=" + newUsername);
+								L.d(TAG, "password=" + newPassword);
 
 								Editor editor = sharedPrefs.edit();
-								editor.putString(Constants.XMPP_USERNAME, newUsername);
-								editor.putString(Constants.XMPP_PASSWORD, newPassword);
+								editor.putString(Constants.XMPP_USERNAME,
+										newUsername);
+								editor.putString(Constants.XMPP_PASSWORD,
+										newPassword);
 								editor.commit();
-								//账户注册成功
-								Log.i(LOGTAG, "Account registered successfully");
+								// 账户注册成功
+								Log.i(TAG, "Account registered successfully");
 								xmppManager.runTask();
 							}
 						}
 					}
 				};
 
-				//给XMPP连接-->添加数据包监听器
+				// 给XMPP连接-->添加数据包监听器
 				connection.addPacketListener(packetListener, packetFilter);
 
 				registration.setType(IQ.Type.SET);
 				// registration.setTo(xmppHost);
-				// Map<String, String> attributes = new HashMap<String, String>();
+				// Map<String, String> attributes = new HashMap<String,
+				// String>();
 				// attributes.put("username", rUsername);
 				// attributes.put("password", rPassword);
 				// registration.setAttributes(attributes);
 				registration.addAttribute("username", newUsername);
 				registration.addAttribute("password", newPassword);
-				connection.sendPacket(registration);//发送注册数据包
+				connection.sendPacket(registration);// 发送注册数据包
 
 			} else {
-				L.i(LOGTAG, "Account registered already");
+				L.i(TAG, "Account registered already");
 				xmppManager.runTask();
 			}
 		}
 	}
 
 	/**
-	 * A runnable task to log into the server.
-	 * 创建一个线程-->登陆到服务器的
+	 * A runnable task to log into the server. 创建一个线程-->登陆到服务器的
 	 */
 	private class LoginTask implements Runnable {
 
@@ -539,40 +557,46 @@ public class XmppManager {
 		}
 
 		public void run() {
-			L.i(LOGTAG, "LoginTask.run()...");
+			L.i(TAG, "LoginTask.run()...");
 
-			if (!xmppManager.isAuthenticated()) {//如果账户已认证
-				L.d(LOGTAG, "username=" + username);
-				L.d(LOGTAG, "password=" + password);
+			if (!xmppManager.isAuthenticated()) {// 如果账户已认证
+				L.d(TAG, "username=" + username);
+				L.d(TAG, "password=" + password);
 
 				try {
-					//登陆
+					// 登陆
 					xmppManager.getConnection().login(
 							xmppManager.getUsername(),
 							xmppManager.getPassword(), XMPP_RESOURCE_NAME);
-					L.d(LOGTAG, "Loggedn in successfully");
+					L.d(TAG, "Loggedn in successfully");
 
 					// connection listener
 					// 添加连接监听器
 					if (xmppManager.getConnectionListener() != null) {
-						xmppManager.getConnection().addConnectionListener(xmppManager.getConnectionListener());
+						xmppManager.getConnection().addConnectionListener(
+								xmppManager.getConnectionListener());
 					}
 
 					// packet filter
-					PacketFilter packetFilter = new PacketTypeFilter(NotificationIQ.class);
+					PacketFilter packetFilter = new PacketTypeFilter(
+							NotificationIQ.class);
 					// packet listener
-					PacketListener packetListener = xmppManager.getNotificationPacketListener();
+					PacketListener packetListener = xmppManager
+							.getNotificationPacketListener();
 					connection.addPacketListener(packetListener, packetFilter);
 
 					xmppManager.runTask();
 
 				} catch (XMPPException e) {
-					L.e(LOGTAG, "LoginTask.run()... xmpp error");
-					L.e(LOGTAG, "Failed to login to xmpp server. Caused by: " + e.getMessage());
+					L.e(TAG, "LoginTask.run()... xmpp error");
+					L.e(TAG, "Failed to login to xmpp server. Caused by: "
+							+ e.getMessage());
 					String INVALID_CREDENTIALS_ERROR_CODE = "401";
 					String errorMessage = e.getMessage();
-					//如果登陆失败,那么就重新发起注册账户
-					if (errorMessage != null && errorMessage.contains(INVALID_CREDENTIALS_ERROR_CODE)) {
+					// 如果登陆失败,那么就重新发起注册账户
+					if (errorMessage != null
+							&& errorMessage
+									.contains(INVALID_CREDENTIALS_ERROR_CODE)) {
 						xmppManager.reregisterAccount();
 						return;
 					}
@@ -580,13 +604,14 @@ public class XmppManager {
 					xmppManager.startReconnectionThread();
 
 				} catch (Exception e) {
-					L.e(LOGTAG, "LoginTask.run()... other error");
-					L.e(LOGTAG, "Failed to login to xmpp server. Caused by: " + e.getMessage());
+					L.e(TAG, "LoginTask.run()... other error");
+					L.e(TAG, "Failed to login to xmpp server. Caused by: "
+							+ e.getMessage());
 					xmppManager.startReconnectionThread();
 				}
 
 			} else {
-				L.i(LOGTAG, "Logged in already");
+				L.i(TAG, "Logged in already");
 				xmppManager.runTask();
 			}
 
