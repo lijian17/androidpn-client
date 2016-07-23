@@ -25,177 +25,176 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.widget.Toast;
 
-/** 
- * This class is to notify the user of messages with NotificationManager.<br>
- * 通过NotificationManager通知用户有新消息
- *
- * @author Sehwan Noh (devnoh@gmail.com)
+/**
+ * 创建状态栏通知
+ * 
+ * @author lijian
+ * @date 2016-7-23 下午12:48:16
  */
 public class Notifier {
+	private static final String TAG = "Notifier";
 
-    private static final String LOGTAG = LogUtil.makeLogTag(Notifier.class);
+	private static final Random random = new Random(System.currentTimeMillis());
 
-    private static final Random random = new Random(System.currentTimeMillis());
+	private Context context;
 
-    private Context context;
+	private SharedPreferences sharedPrefs;
 
-    private SharedPreferences sharedPrefs;
+	private NotificationManager notificationManager;
 
-    private NotificationManager notificationManager;
+	public Notifier(Context context) {
+		this.context = context;
+		this.sharedPrefs = context.getSharedPreferences(
+				Constants.SHARED_PREFERENCE_NAME, Context.MODE_PRIVATE);
+		this.notificationManager = (NotificationManager) context
+				.getSystemService(Context.NOTIFICATION_SERVICE);
+	}
 
-    public Notifier(Context context) {
-        this.context = context;
-        this.sharedPrefs = context.getSharedPreferences(
-                Constants.SHARED_PREFERENCE_NAME, Context.MODE_PRIVATE);
-        this.notificationManager = (NotificationManager) context
-                .getSystemService(Context.NOTIFICATION_SERVICE);
-    }
+	public void notify(String notificationId, String apiKey, String title,
+			String message, String uri) {
+		L.d(TAG, "notify()...");
 
-    public void notify(String notificationId, String apiKey, String title,
-            String message, String uri) {
-        L.d(LOGTAG, "notify()...");
+		L.d(TAG, "notificationId=" + notificationId);
+		L.d(TAG, "notificationApiKey=" + apiKey);
+		L.d(TAG, "notificationTitle=" + title);
+		L.d(TAG, "notificationMessage=" + message);
+		L.d(TAG, "notificationUri=" + uri);
 
-        L.d(LOGTAG, "notificationId=" + notificationId);
-        L.d(LOGTAG, "notificationApiKey=" + apiKey);
-        L.d(LOGTAG, "notificationTitle=" + title);
-        L.d(LOGTAG, "notificationMessage=" + message);
-        L.d(LOGTAG, "notificationUri=" + uri);
+		if (isNotificationEnabled()) {
+			// 显示Toast
+			if (isNotificationToastEnabled()) {
+				Toast.makeText(context, message, Toast.LENGTH_LONG).show();
+			}
 
-        if (isNotificationEnabled()) {
-            // Show the toast
-            if (isNotificationToastEnabled()) {
-                Toast.makeText(context, message, Toast.LENGTH_LONG).show();
-            }
+			// Notification
+			Notification notification = new Notification();
+			notification.icon = getNotificationIcon();
+			notification.defaults = Notification.DEFAULT_LIGHTS;
+			if (isNotificationSoundEnabled()) {
+				notification.defaults |= Notification.DEFAULT_SOUND;
+			}
+			if (isNotificationVibrateEnabled()) {
+				notification.defaults |= Notification.DEFAULT_VIBRATE;
+			}
+			notification.flags |= Notification.FLAG_AUTO_CANCEL;
+			notification.when = System.currentTimeMillis();
+			notification.tickerText = message;
 
-            // Notification
-            Notification notification = new Notification();
-            notification.icon = getNotificationIcon();
-            notification.defaults = Notification.DEFAULT_LIGHTS;
-            if (isNotificationSoundEnabled()) {
-                notification.defaults |= Notification.DEFAULT_SOUND;
-            }
-            if (isNotificationVibrateEnabled()) {
-                notification.defaults |= Notification.DEFAULT_VIBRATE;
-            }
-            notification.flags |= Notification.FLAG_AUTO_CANCEL;
-            notification.when = System.currentTimeMillis();
-            notification.tickerText = message;
+			// Intent intent;
+			// if (uri != null
+			// && uri.length() > 0
+			// && (uri.startsWith("http:") || uri.startsWith("https:")
+			// || uri.startsWith("tel:") || uri.startsWith("geo:"))) {
+			// intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+			// } else {
+			// String callbackActivityPackageName = sharedPrefs.getString(
+			// Constants.CALLBACK_ACTIVITY_PACKAGE_NAME, "");
+			// String callbackActivityClassName = sharedPrefs.getString(
+			// Constants.CALLBACK_ACTIVITY_CLASS_NAME, "");
+			// intent = new Intent().setClassName(callbackActivityPackageName,
+			// callbackActivityClassName);
+			// intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			// intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+			// }
 
-            //            Intent intent;
-            //            if (uri != null
-            //                    && uri.length() > 0
-            //                    && (uri.startsWith("http:") || uri.startsWith("https:")
-            //                            || uri.startsWith("tel:") || uri.startsWith("geo:"))) {
-            //                intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
-            //            } else {
-            //                String callbackActivityPackageName = sharedPrefs.getString(
-            //                        Constants.CALLBACK_ACTIVITY_PACKAGE_NAME, "");
-            //                String callbackActivityClassName = sharedPrefs.getString(
-            //                        Constants.CALLBACK_ACTIVITY_CLASS_NAME, "");
-            //                intent = new Intent().setClassName(callbackActivityPackageName,
-            //                        callbackActivityClassName);
-            //                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            //                intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            //            }
+			Intent intent = new Intent(context,
+					NotificationDetailsActivity.class);
+			intent.putExtra(Constants.NOTIFICATION_ID, notificationId);
+			intent.putExtra(Constants.NOTIFICATION_API_KEY, apiKey);
+			intent.putExtra(Constants.NOTIFICATION_TITLE, title);
+			intent.putExtra(Constants.NOTIFICATION_MESSAGE, message);
+			intent.putExtra(Constants.NOTIFICATION_URI, uri);
+			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			intent.setFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
+			intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+			intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
-            Intent intent = new Intent(context,
-                    NotificationDetailsActivity.class);
-            intent.putExtra(Constants.NOTIFICATION_ID, notificationId);
-            intent.putExtra(Constants.NOTIFICATION_API_KEY, apiKey);
-            intent.putExtra(Constants.NOTIFICATION_TITLE, title);
-            intent.putExtra(Constants.NOTIFICATION_MESSAGE, message);
-            intent.putExtra(Constants.NOTIFICATION_URI, uri);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            intent.setFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-            intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			PendingIntent contentIntent = PendingIntent.getActivity(context, 0,
+					intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-            PendingIntent contentIntent = PendingIntent.getActivity(context, 0,
-                    intent, PendingIntent.FLAG_UPDATE_CURRENT);
+			notification.setLatestEventInfo(context, title, message,
+					contentIntent);
+			notificationManager.notify(random.nextInt(), notification);
 
-            notification.setLatestEventInfo(context, title, message,
-                    contentIntent);
-            notificationManager.notify(random.nextInt(), notification);
+			// Intent clickIntent = new Intent(
+			// Constants.ACTION_NOTIFICATION_CLICKED);
+			// clickIntent.putExtra(Constants.NOTIFICATION_ID, notificationId);
+			// clickIntent.putExtra(Constants.NOTIFICATION_API_KEY, apiKey);
+			// clickIntent.putExtra(Constants.NOTIFICATION_TITLE, title);
+			// clickIntent.putExtra(Constants.NOTIFICATION_MESSAGE, message);
+			// clickIntent.putExtra(Constants.NOTIFICATION_URI, uri);
+			// // positiveIntent.setData(Uri.parse((new StringBuilder(
+			// // "notif://notification.adroidpn.org/")).append(apiKey).append(
+			// // "/").append(System.currentTimeMillis()).toString()));
+			// PendingIntent clickPendingIntent = PendingIntent.getBroadcast(
+			// context, 0, clickIntent, 0);
+			//
+			// notification.setLatestEventInfo(context, title, message,
+			// clickPendingIntent);
+			//
+			// Intent clearIntent = new Intent(
+			// Constants.ACTION_NOTIFICATION_CLEARED);
+			// clearIntent.putExtra(Constants.NOTIFICATION_ID, notificationId);
+			// clearIntent.putExtra(Constants.NOTIFICATION_API_KEY, apiKey);
+			// // negativeIntent.setData(Uri.parse((new StringBuilder(
+			// // "notif://notification.adroidpn.org/")).append(apiKey).append(
+			// // "/").append(System.currentTimeMillis()).toString()));
+			// PendingIntent clearPendingIntent = PendingIntent.getBroadcast(
+			// context, 0, clearIntent, 0);
+			// notification.deleteIntent = clearPendingIntent;
+			//
+			// notificationManager.notify(random.nextInt(), notification);
 
-            //            Intent clickIntent = new Intent(
-            //                    Constants.ACTION_NOTIFICATION_CLICKED);
-            //            clickIntent.putExtra(Constants.NOTIFICATION_ID, notificationId);
-            //            clickIntent.putExtra(Constants.NOTIFICATION_API_KEY, apiKey);
-            //            clickIntent.putExtra(Constants.NOTIFICATION_TITLE, title);
-            //            clickIntent.putExtra(Constants.NOTIFICATION_MESSAGE, message);
-            //            clickIntent.putExtra(Constants.NOTIFICATION_URI, uri);
-            //            //        positiveIntent.setData(Uri.parse((new StringBuilder(
-            //            //                "notif://notification.adroidpn.org/")).append(apiKey).append(
-            //            //                "/").append(System.currentTimeMillis()).toString()));
-            //            PendingIntent clickPendingIntent = PendingIntent.getBroadcast(
-            //                    context, 0, clickIntent, 0);
-            //
-            //            notification.setLatestEventInfo(context, title, message,
-            //                    clickPendingIntent);
-            //
-            //            Intent clearIntent = new Intent(
-            //                    Constants.ACTION_NOTIFICATION_CLEARED);
-            //            clearIntent.putExtra(Constants.NOTIFICATION_ID, notificationId);
-            //            clearIntent.putExtra(Constants.NOTIFICATION_API_KEY, apiKey);
-            //            //        negativeIntent.setData(Uri.parse((new StringBuilder(
-            //            //                "notif://notification.adroidpn.org/")).append(apiKey).append(
-            //            //                "/").append(System.currentTimeMillis()).toString()));
-            //            PendingIntent clearPendingIntent = PendingIntent.getBroadcast(
-            //                    context, 0, clearIntent, 0);
-            //            notification.deleteIntent = clearPendingIntent;
-            //
-            //            notificationManager.notify(random.nextInt(), notification);
-
-        } else {
-            L.w(LOGTAG, "Notificaitons disabled.");
-        }
-    }
+		} else {
+			L.w(TAG, "Notificaitons disabled.");
+		}
+	}
 
 	/**
 	 * 得到通知的logo
 	 * 
 	 * @return
 	 */
-    private int getNotificationIcon() {
-        return sharedPrefs.getInt(Constants.NOTIFICATION_ICON, 0);
-    }
+	private int getNotificationIcon() {
+		return sharedPrefs.getInt(Constants.NOTIFICATION_ICON, 0);
+	}
 
 	/**
 	 * 是否显示推送的通知
 	 * 
 	 * @return
 	 */
-    private boolean isNotificationEnabled() {
-        return sharedPrefs.getBoolean(Constants.SETTINGS_NOTIFICATION_ENABLED,
-                true);
-    }
+	private boolean isNotificationEnabled() {
+		return sharedPrefs.getBoolean(Constants.SETTINGS_NOTIFICATION_ENABLED,
+				true);
+	}
 
 	/**
 	 * 当接到推送通知-->是否播放通知声音
 	 * 
 	 * @return
 	 */
-    private boolean isNotificationSoundEnabled() {
-        return sharedPrefs.getBoolean(Constants.SETTINGS_SOUND_ENABLED, true);
-    }
+	private boolean isNotificationSoundEnabled() {
+		return sharedPrefs.getBoolean(Constants.SETTINGS_SOUND_ENABLED, true);
+	}
 
 	/**
 	 * 当接到推送通知-->是否震动手机
 	 * 
 	 * @return
 	 */
-    private boolean isNotificationVibrateEnabled() {
-        return sharedPrefs.getBoolean(Constants.SETTINGS_VIBRATE_ENABLED, true);
-    }
+	private boolean isNotificationVibrateEnabled() {
+		return sharedPrefs.getBoolean(Constants.SETTINGS_VIBRATE_ENABLED, true);
+	}
 
 	/**
 	 * 当接到推送通知-->是否显示吐司
 	 * 
 	 * @return
 	 */
-    private boolean isNotificationToastEnabled() {
-        return sharedPrefs.getBoolean(Constants.SETTINGS_TOAST_ENABLED, false);
-    }
+	private boolean isNotificationToastEnabled() {
+		return sharedPrefs.getBoolean(Constants.SETTINGS_TOAST_ENABLED, false);
+	}
 
 }

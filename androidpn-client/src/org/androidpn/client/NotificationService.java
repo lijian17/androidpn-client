@@ -241,6 +241,7 @@ public class NotificationService extends Service {
 	 * 注册广播接收者(通知栏消息显示)
 	 */
 	private void registerNotificationReceiver() {
+		L.i(TAG, "registerNotificationReceiver()...");
 		IntentFilter filter = new IntentFilter();
 		filter.addAction(Constants.ACTION_SHOW_NOTIFICATION);
 		filter.addAction(Constants.ACTION_NOTIFICATION_CLICKED);

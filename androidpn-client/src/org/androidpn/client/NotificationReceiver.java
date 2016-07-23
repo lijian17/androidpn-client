@@ -18,19 +18,15 @@ package org.androidpn.client;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 
-/** 
- * Broadcast receiver that handles push notification messages from the server.
- * This should be registered as receiver in AndroidManifest.xml. <br>
+/**
  * 推送通知消息的广播接收器
  * 
- * @author Sehwan Noh (devnoh@gmail.com)
+ * @author lijian
+ * @date 2016-7-23 下午12:27:31
  */
 public final class NotificationReceiver extends BroadcastReceiver {
-
-    private static final String LOGTAG = LogUtil
-            .makeLogTag(NotificationReceiver.class);
+    private static final String TAG = "NotificationReceiver";
 
     //    private NotificationService notificationService;
 
@@ -43,9 +39,9 @@ public final class NotificationReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        L.d(LOGTAG, "NotificationReceiver.onReceive()...");
+        L.d(TAG, "NotificationReceiver.onReceive()...");
         String action = intent.getAction();
-        L.d(LOGTAG, "action=" + action);
+        L.d(TAG, "action=" + action);
 
         /* Androidpn_NotificationPacketListener(24421): 
 			packet.toXML()=
@@ -67,11 +63,11 @@ public final class NotificationReceiver extends BroadcastReceiver {
             String notificationUri = intent
                     .getStringExtra(Constants.NOTIFICATION_URI);
 
-            Log.d(LOGTAG, "notificationId=" + notificationId);
-            Log.d(LOGTAG, "notificationApiKey=" + notificationApiKey);
-            Log.d(LOGTAG, "notificationTitle=" + notificationTitle);
-            Log.d(LOGTAG, "notificationMessage=" + notificationMessage);
-            Log.d(LOGTAG, "notificationUri=" + notificationUri);
+            L.d(TAG, "notificationId=" + notificationId);
+            L.d(TAG, "notificationApiKey=" + notificationApiKey);
+            L.d(TAG, "notificationTitle=" + notificationTitle);
+            L.d(TAG, "notificationMessage=" + notificationMessage);
+            L.d(TAG, "notificationUri=" + notificationUri);
 
             /**
              * 广播接收者，当收到服务器推送过来的一个信息后，发出一个Notification告诉用户收到了信息，以便查看
