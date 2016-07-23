@@ -19,36 +19,34 @@ import org.androidpn.client.ServiceManager;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
 /**
- * This is an androidpn client demo application.
+ * androidpn使用
  * 
- * @author Sehwan Noh (devnoh@gmail.com)
+ * @author lijian
+ * @date 2016-7-23 上午8:56:43
  */
 public class DemoAppActivity extends Activity {
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        Log.d("DemoAppActivity", "onCreate()...");
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.main);
 
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);
+		// 设置
+		Button okButton = (Button) findViewById(R.id.btn_settings);
+		okButton.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View view) {
+				ServiceManager.viewNotificationSettings(DemoAppActivity.this);
+			}
+		});
 
-        // Settings
-        Button okButton = (Button) findViewById(R.id.btn_settings);
-        okButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                ServiceManager.viewNotificationSettings(DemoAppActivity.this);
-            }
-        });
-
-        // Start the service
-        ServiceManager serviceManager = new ServiceManager(this);
-        serviceManager.setNotificationIcon(R.drawable.notification);
-        serviceManager.startService();
-    }
+		// 启动服务
+		ServiceManager serviceManager = new ServiceManager(this);
+		serviceManager.setNotificationIcon(R.drawable.notification);
+		serviceManager.startService();
+	}
 
 }

@@ -25,10 +25,10 @@ import android.preference.PreferenceScreen;
 import android.util.Log;
 
 /**
- * Activity for displaying the notification setting view. <br>
  * 通知设置Activity
  * 
- * @author Sehwan Noh (devnoh@gmail.com)
+ * @author lijian
+ * @date 2016-7-23 上午9:10:03
  */
 public class NotificationSettingsActivity extends PreferenceActivity {
 
@@ -47,12 +47,17 @@ public class NotificationSettingsActivity extends PreferenceActivity {
 		CheckBoxPreference notifyPref = (CheckBoxPreference) getPreferenceManager()
 				.findPreference(Constants.SETTINGS_NOTIFICATION_ENABLED);
 		if (notifyPref.isChecked()) {
-			notifyPref.setTitle("Notifications Enabled");
+			notifyPref.setTitle("启用通知");
 		} else {
-			notifyPref.setTitle("Notifications Disabled");
+			notifyPref.setTitle("禁用通知");
 		}
 	}
 
+	/**
+	 * 创建优先等级
+	 * 
+	 * @return
+	 */
 	private PreferenceScreen createPreferenceHierarchy() {
 		Log.d(LOGTAG, "createSettingsPreferenceScreen()...");
 
@@ -63,15 +68,11 @@ public class NotificationSettingsActivity extends PreferenceActivity {
 
 		PreferenceScreen root = preferenceManager.createPreferenceScreen(this);
 
-		// PreferenceCategory prefCat = new PreferenceCategory(this);
-		// // inlinePrefCat.setTitle("");
-		// root.addPreference(prefCat);
-
 		CheckBoxPreference notifyPref = new CheckBoxPreference(this);
 		notifyPref.setKey(Constants.SETTINGS_NOTIFICATION_ENABLED);
-		notifyPref.setTitle("Notifications Enabled");
-		notifyPref.setSummaryOn("Receive push messages");
-		notifyPref.setSummaryOff("Do not receive push messages");
+		notifyPref.setTitle("启用通知");
+		notifyPref.setSummaryOn("接收消息推送");
+		notifyPref.setSummaryOff("不接收消息推送");
 		notifyPref.setDefaultValue(Boolean.TRUE);
 		notifyPref
 				.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
@@ -79,9 +80,9 @@ public class NotificationSettingsActivity extends PreferenceActivity {
 							Object newValue) {
 						boolean checked = Boolean.valueOf(newValue.toString());
 						if (checked) {
-							preference.setTitle("Notifications Enabled");
+							preference.setTitle("启用通知");
 						} else {
-							preference.setTitle("Notifications Disabled");
+							preference.setTitle("禁用通知");
 						}
 						return true;
 					}
@@ -89,15 +90,15 @@ public class NotificationSettingsActivity extends PreferenceActivity {
 
 		CheckBoxPreference soundPref = new CheckBoxPreference(this);
 		soundPref.setKey(Constants.SETTINGS_SOUND_ENABLED);
-		soundPref.setTitle("Sound");
-		soundPref.setSummary("Play a sound for notifications");
+		soundPref.setTitle("声音");
+		soundPref.setSummary("当收到通知时播放声音");
 		soundPref.setDefaultValue(Boolean.TRUE);
 		// soundPref.setDependency(Constants.SETTINGS_NOTIFICATION_ENABLED);
 
 		CheckBoxPreference vibratePref = new CheckBoxPreference(this);
 		vibratePref.setKey(Constants.SETTINGS_VIBRATE_ENABLED);
-		vibratePref.setTitle("Vibrate");
-		vibratePref.setSummary("Vibrate the phone for notifications");
+		vibratePref.setTitle("震动");
+		vibratePref.setSummary("当收到通知时手机震动");
 		vibratePref.setDefaultValue(Boolean.TRUE);
 		// vibratePref.setDependency(Constants.SETTINGS_NOTIFICATION_ENABLED);
 
@@ -113,6 +114,9 @@ public class NotificationSettingsActivity extends PreferenceActivity {
 		return root;
 	}
 
+	/**
+	 * 设定偏好的依赖关系
+	 */
 	private void setPreferenceDependencies() {
 		Preference soundPref = getPreferenceManager().findPreference(
 				Constants.SETTINGS_SOUND_ENABLED);
