@@ -24,29 +24,27 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 
 /**
- * This class is to manage the notificatin service and to load the
- * configuration.<br>
  * 加载客户端中的配置信息，并管理NotifactionService服务的启动与关闭
  * 
- * @author Sehwan Noh (devnoh@gmail.com)
+ * @author lijian
+ * @date 2016-7-23 上午9:37:15
  */
 public final class ServiceManager {
-
-	private static final String LOGTAG = LogUtil.makeLogTag(ServiceManager.class);
+	private static final String TAG = "ServiceManager";
 
 	private Context context;
-
+	/** 偏好设定 **/
 	private SharedPreferences sharedPrefs;
 
 	/** 加载配置文件 **/
 	private Properties props;
-
+	/** 版本号 **/
 	private String version = "0.5.0";
-
+	/** api密钥 **/
 	private String apiKey;
-
+	/** xmpp地址 **/
 	private String xmppHost;
-
+	/** xmpp端口 **/
 	private String xmppPort;
 
 	/** 回调Activity的包名 **/
@@ -59,37 +57,32 @@ public final class ServiceManager {
 		this.context = context;
 
 		if (context instanceof Activity) {
-			L.i(LOGTAG, "Callback Activity...");
+			L.i(TAG, "Callback Activity...");
 			Activity callbackActivity = (Activity) context;
 			callbackActivityPackageName = callbackActivity.getPackageName();
 			callbackActivityClassName = callbackActivity.getClass().getName();
 		}
 
-		//        apiKey = getMetaDataValue("ANDROIDPN_API_KEY");
-		//        Log.i(LOGTAG, "apiKey=" + apiKey);
-		//        //        if (apiKey == null) {
-		//        //            Log.e(LOGTAG, "Please set the androidpn api key in the manifest file.");
-		//        //            throw new RuntimeException();
-		//        //        }
-
 		props = loadProperties();
 		apiKey = props.getProperty("apiKey", "");
 		xmppHost = props.getProperty("xmppHost", "127.0.0.1");
 		xmppPort = props.getProperty("xmppPort", "5222");
-		L.i(LOGTAG, "apiKey=" + apiKey);
-		L.i(LOGTAG, "xmppHost=" + xmppHost);
-		L.i(LOGTAG, "xmppPort=" + xmppPort);
+		L.i(TAG, "apiKey=" + apiKey);
+		L.i(TAG, "xmppHost=" + xmppHost);
+		L.i(TAG, "xmppPort=" + xmppPort);
 
-		sharedPrefs = context.getSharedPreferences(Constants.SHARED_PREFERENCE_NAME, Context.MODE_PRIVATE);
+		sharedPrefs = context.getSharedPreferences(
+				Constants.SHARED_PREFERENCE_NAME, Context.MODE_PRIVATE);
 		Editor editor = sharedPrefs.edit();
 		editor.putString(Constants.API_KEY, apiKey);
 		editor.putString(Constants.VERSION, version);
 		editor.putString(Constants.XMPP_HOST, xmppHost);
 		editor.putInt(Constants.XMPP_PORT, Integer.parseInt(xmppPort));
-		editor.putString(Constants.CALLBACK_ACTIVITY_PACKAGE_NAME, callbackActivityPackageName);
-		editor.putString(Constants.CALLBACK_ACTIVITY_CLASS_NAME, callbackActivityClassName);
+		editor.putString(Constants.CALLBACK_ACTIVITY_PACKAGE_NAME,
+				callbackActivityPackageName);
+		editor.putString(Constants.CALLBACK_ACTIVITY_CLASS_NAME,
+				callbackActivityClassName);
 		editor.commit();
-		// L.i(LOGTAG, "sharedPrefs=" + sharedPrefs.toString());
 	}
 
 	/**
@@ -99,7 +92,13 @@ public final class ServiceManager {
 		Thread serviceThread = new Thread(new Runnable() {
 			@Override
 			public void run() {
+				// Implicit intents with startService are not safe错误的解决方式
+				// Android 5.0 service服务必须采用显示方式启动
+				// 解决方案一：设置Action和packageName
 				Intent intent = NotificationService.getIntent();
+				// intent.setAction("org.androidpn.client.NotificationService");//
+				// 你定义的service的action
+				intent.setPackage(context.getPackageName());// 这里你需要设置你应用的包名
 				context.startService(intent);
 			}
 		});
@@ -114,78 +113,31 @@ public final class ServiceManager {
 		context.stopService(intent);
 	}
 
-	//    private String getMetaDataValue(String name, String def) {
-	//        String value = getMetaDataValue(name);
-	//        return (value == null) ? def : value;
-	//    }
-	//
-	//    private String getMetaDataValue(String name) {
-	//        Object value = null;
-	//        PackageManager packageManager = context.getPackageManager();
-	//        ApplicationInfo applicationInfo;
-	//        try {
-	//            applicationInfo = packageManager.getApplicationInfo(context
-	//                    .getPackageName(), 128);
-	//            if (applicationInfo != null && applicationInfo.metaData != null) {
-	//                value = applicationInfo.metaData.get(name);
-	//            }
-	//        } catch (NameNotFoundException e) {
-	//            throw new RuntimeException(
-	//                    "Could not read the name in the manifest file.", e);
-	//        }
-	//        if (value == null) {
-	//            throw new RuntimeException("The name '" + name
-	//                    + "' is not defined in the manifest file's meta data.");
-	//        }
-	//        return value.toString();
-	//    }
-
 	/**
 	 * 加载Properties配置文件
 	 * 
 	 * @return
 	 */
 	private Properties loadProperties() {
-	//        InputStream in = null;
-	//        Properties props = null;
-	//        try {
-	//            in = getClass().getResourceAsStream(
-	//                    "/org/androidpn/client/client.properties");
-	//            if (in != null) {
-	//                props = new Properties();
-	//                props.load(in);
-	//            } else {
-	//                Log.e(LOGTAG, "Could not find the properties file.");
-	//            }
-	//        } catch (IOException e) {
-	//            Log.e(LOGTAG, "Could not find the properties file.", e);
-	//        } finally {
-	//            if (in != null)
-	//                try {
-	//                    in.close();
-	//                } catch (Throwable ignore) {
-	//                }
-	//        }
-	//        return props;
-
 		Properties props = new Properties();
 		try {
-			int id = context.getResources().getIdentifier("androidpn", "raw", context.getPackageName());
+			int id = context.getResources().getIdentifier("androidpn", "raw",
+					context.getPackageName());
 			props.load(context.getResources().openRawResource(id));
 		} catch (Exception e) {
-			L.e(LOGTAG, "Could not find the properties file.", e);
-			// e.printStackTrace();
+			L.e(TAG, "找不到properties文件.", e);
 		}
 		return props;
 	}
 
-	//    public String getVersion() {
-	//        return version;
-	//    }
-	//
-	//    public String getApiKey() {
-	//        return apiKey;
-	//    }
+	/**
+	 * 获取版本号
+	 * 
+	 * @return
+	 */
+	public String getVersion() {
+		return version;
+	}
 
 	/**
 	 * 设置通知logo
@@ -198,21 +150,13 @@ public final class ServiceManager {
 		editor.commit();
 	}
 
-	//    public void viewNotificationSettings() {
-	//        Intent intent = new Intent().setClass(context,
-	//                NotificationSettingsActivity.class);
-	//        context.startActivity(intent);
-	//    }
-
 	/**
 	 * 进入到通知设置界面
 	 * 
 	 * @param context
 	 */
 	public static void viewNotificationSettings(Context context) {
-		Intent intent = new Intent().setClass(context,
-				NotificationSettingsActivity.class);
+		Intent intent = new Intent(context, NotificationSettingsActivity.class);
 		context.startActivity(intent);
 	}
-
 }
