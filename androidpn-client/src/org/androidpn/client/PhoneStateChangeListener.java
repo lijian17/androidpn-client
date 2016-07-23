@@ -36,8 +36,8 @@ public class PhoneStateChangeListener extends PhoneStateListener {
 	@Override
 	public void onDataConnectionStateChanged(int state) {
 		super.onDataConnectionStateChanged(state);
-		L.d(TAG, "onDataConnectionStateChanged()...");
-		L.d(TAG, "网络连接状态 = " + getStateTip(state));
+		L.i(TAG, "onDataConnectionStateChanged()...");
+		L.i(TAG, "网络连接状态 = " + getStateTip(state));
 
 		switch (state) {
 		case TelephonyManager.DATA_DISCONNECTED:// 网络断开

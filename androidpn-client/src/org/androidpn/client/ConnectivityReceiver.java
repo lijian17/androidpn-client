@@ -38,9 +38,9 @@ public class ConnectivityReceiver extends BroadcastReceiver {
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		L.d(TAG, "ConnectivityReceiver.onReceive()...");
+		L.i(TAG, "ConnectivityReceiver.onReceive()...");
 		String action = intent.getAction();
-		L.d(TAG, "action=" + action);
+		L.i(TAG, "action=" + action);
 
 		ConnectivityManager connectivityManager = (ConnectivityManager) context
 				.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -50,8 +50,8 @@ public class ConnectivityReceiver extends BroadcastReceiver {
 
 		// 获取当前的网络连接是否可用
 		if (networkInfo != null) {
-			L.d(TAG, "网络类型  = " + networkInfo.getTypeName());
-			L.d(TAG, "网络状态  = " + networkInfo.getState());
+			L.i(TAG, "网络类型  = " + networkInfo.getTypeName());
+			L.i(TAG, "网络状态  = " + networkInfo.getState());
 			if (networkInfo.isConnected()) {
 				L.i(TAG, "网络是连接的");
 				notificationService.connect();

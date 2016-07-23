@@ -83,7 +83,7 @@ public class NotificationService extends Service {
 
 	@Override
 	public void onCreate() {
-		L.d(TAG, "onCreate()...");
+		L.i(TAG, "onCreate()...");
 		sharedPrefs = getSharedPreferences(Constants.SHARED_PREFERENCE_NAME,
 				Context.MODE_PRIVATE);
 
@@ -123,29 +123,29 @@ public class NotificationService extends Service {
 
 	@Override
 	public void onStart(Intent intent, int startId) {
-		L.d(TAG, "onStart()...");
+		L.i(TAG, "onStart()...");
 	}
 
 	@Override
 	public void onDestroy() {
-		L.d(TAG, "onDestroy()...");
+		L.i(TAG, "onDestroy()...");
 		stop();
 	}
 
 	@Override
 	public IBinder onBind(Intent intent) {
-		L.d(TAG, "onBind()...");
+		L.i(TAG, "onBind()...");
 		return null;
 	}
 
 	@Override
 	public void onRebind(Intent intent) {
-		L.d(TAG, "onRebind()...");
+		L.i(TAG, "onRebind()...");
 	}
 
 	@Override
 	public boolean onUnbind(Intent intent) {
-		L.d(TAG, "onUnbind()...");
+		L.i(TAG, "onUnbind()...");
 		return true;
 	}
 
@@ -216,7 +216,7 @@ public class NotificationService extends Service {
 	 * 网络是连接的
 	 */
 	public void connect() {
-		L.d(TAG, "connect()...");
+		L.i(TAG, "connect()...");
 		taskSubmitter.submit(new Runnable() {
 			public void run() {
 				// 使xmpp连接网络
@@ -229,7 +229,7 @@ public class NotificationService extends Service {
 	 * 网络没有连接
 	 */
 	public void disconnect() {
-		L.d(TAG, "disconnect()...");
+		L.i(TAG, "disconnect()...");
 		taskSubmitter.submit(new Runnable() {
 			public void run() {
 				NotificationService.this.getXmppManager().disconnect();
@@ -259,7 +259,7 @@ public class NotificationService extends Service {
 	 * 注册(网络是否可用广播接收者 )
 	 */
 	private void registerConnectivityReceiver() {
-		L.d(TAG, "registerConnectivityReceiver()...");
+		L.i(TAG, "registerConnectivityReceiver()...");
 		// 监听数据连接状态
 		telephonyManager.listen(phoneStateListener,
 				PhoneStateListener.LISTEN_DATA_CONNECTION_STATE);
@@ -273,7 +273,7 @@ public class NotificationService extends Service {
 	 * 注销(网络是否可用广播接收者 )
 	 */
 	private void unregisterConnectivityReceiver() {
-		L.d(TAG, "unregisterConnectivityReceiver()...");
+		L.i(TAG, "unregisterConnectivityReceiver()...");
 		// 停止监听
 		telephonyManager.listen(phoneStateListener,
 				PhoneStateListener.LISTEN_NONE);
@@ -290,7 +290,7 @@ public class NotificationService extends Service {
 	 * </pre>
 	 */
 	private void start() {
-		L.d(TAG, "start()...");
+		L.i(TAG, "start()...");
 		registerNotificationReceiver();
 		registerConnectivityReceiver();
 		xmppManager.connect();// 建立连接
@@ -307,7 +307,7 @@ public class NotificationService extends Service {
 	 * </pre>
 	 */
 	private void stop() {
-		L.d(TAG, "stop()...");
+		L.i(TAG, "stop()...");
 		unregisterNotificationReceiver();
 		unregisterConnectivityReceiver();
 		xmppManager.disconnect();// 断开连接
@@ -365,7 +365,7 @@ public class NotificationService extends Service {
 		public void increase() {
 			synchronized (notificationService.getTaskTracker()) {
 				notificationService.getTaskTracker().count++;
-				L.d(TAG, "执行增加任务，当前任务总数：" + count);
+				L.i(TAG, "执行增加任务，当前任务总数：" + count);
 			}
 		}
 
@@ -375,7 +375,7 @@ public class NotificationService extends Service {
 		public void decrease() {
 			synchronized (notificationService.getTaskTracker()) {
 				notificationService.getTaskTracker().count--;
-				L.d(TAG, "执行减少任务，当前任务总数：" + count);
+				L.i(TAG, "执行减少任务，当前任务总数：" + count);
 			}
 		}
 
