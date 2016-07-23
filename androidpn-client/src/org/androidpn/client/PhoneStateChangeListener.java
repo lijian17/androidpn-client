@@ -19,15 +19,13 @@ import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 
 /**
- * A listener class for monitoring changes in phone connection states. <br>
  * 监听手机状态
  * 
- * @author Sehwan Noh (devnoh@gmail.com)
+ * @author lijian
+ * @date 2016-7-23 下午1:14:17
  */
 public class PhoneStateChangeListener extends PhoneStateListener {
-
-	private static final String LOGTAG = LogUtil
-			.makeLogTag(PhoneStateChangeListener.class);
+	private static final String TAG = "PhoneStateChangeListener";
 
 	private final NotificationService notificationService;
 
@@ -38,37 +36,41 @@ public class PhoneStateChangeListener extends PhoneStateListener {
 	@Override
 	public void onDataConnectionStateChanged(int state) {
 		super.onDataConnectionStateChanged(state);
-		L.d(LOGTAG, "onDataConnectionStateChanged()...");
-		L.d(LOGTAG, "Data Connection State = " + getState(state));
+		L.d(TAG, "onDataConnectionStateChanged()...");
+		L.d(TAG, "网络连接状态 = " + getStateTip(state));
 
-		if (state == TelephonyManager.DATA_CONNECTED) {
+		switch (state) {
+		case TelephonyManager.DATA_DISCONNECTED:// 网络断开
+			break;
+		case TelephonyManager.DATA_CONNECTING:// 网络正在连接
+			break;
+		case TelephonyManager.DATA_CONNECTED:// 网络连接上
 			notificationService.connect();
+			break;
+		case TelephonyManager.DATA_SUSPENDED:// 暂停的，悬浮的(如在2G网络下：电话来的，网络数据暂停)
+			break;
 		}
-
-//		switch (state) {
-//		case TelephonyManager.DATA_DISCONNECTED:// 网络断开
-//			break;
-//		case TelephonyManager.DATA_CONNECTING:// 网络正在连接
-//			break;
-//		case TelephonyManager.DATA_CONNECTED:// 网络连接上
-//			break;
-//		case TelephonyManager.DATA_SUSPENDED:// 暂停的，悬浮的(如在2G网络下：电话来的，网络数据暂停)
-//			break;
-//		}
 	}
 
-	private String getState(int state) {
+	/**
+	 * 根据网络状态码获得状态描述
+	 * 
+	 * @param state
+	 *            状态码
+	 * @return 状态描述
+	 */
+	private String getStateTip(int state) {
 		switch (state) {
-		case 0: // '\0'
-			return "DATA_DISCONNECTED";
-		case 1: // '\001'
-			return "DATA_CONNECTING";
-		case 2: // '\002'
-			return "DATA_CONNECTED";
-		case 3: // '\003'
-			return "DATA_SUSPENDED";
+		case TelephonyManager.DATA_DISCONNECTED:// 网络断开
+			return "网络断开";
+		case TelephonyManager.DATA_CONNECTING:// 网络正在连接
+			return "网络正在连接";
+		case TelephonyManager.DATA_CONNECTED:// 网络连接上
+			return "网络连接上";
+		case TelephonyManager.DATA_SUSPENDED:// 暂停的，悬浮的(如在2G网络下：电话来的，网络数据暂停)
+			return "暂停的，悬浮的(如在2G网络下：电话来的，网络数据暂停)";
 		}
-		return "DATA_<UNKNOWN>";
+		return "网络状态未知";
 	}
 
 }
