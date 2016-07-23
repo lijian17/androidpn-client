@@ -32,26 +32,18 @@ import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 
 /**
- * Service that continues to run in background and respond to the push
- * notification events from the server. This should be registered as service in
- * AndroidManifest.xml. <br>
  * 后台运行并响应来自服务器的事件推送通知服务
  * 
- * @author Sehwan Noh (devnoh@gmail.com)
+ * @author lijian
+ * @date 2016-7-23 上午10:54:11
  */
 public class NotificationService extends Service {
-
-	private static final String LOGTAG = LogUtil
-			.makeLogTag(NotificationService.class);
+	private static final String TAG = "NotificationService";
 
 	public static final String SERVICE_NAME = "org.androidpn.client.NotificationService";
 
 	/** 手机管理器 **/
 	private TelephonyManager telephonyManager;
-
-	// private WifiManager wifiManager;
-	//
-	// private ConnectivityManager connectivityManager;
 
 	/** 广播接收者(通知栏消息显示) **/
 	private BroadcastReceiver notificationReceiver;
@@ -65,10 +57,10 @@ public class NotificationService extends Service {
 	/** 创建一个单线程池 **/
 	private ExecutorService executorService;
 
-	/** 提交一个新的运行任务 **/
+	/** 任务提交器 **/
 	private TaskSubmitter taskSubmitter;
 
-	/** 监测(控制)运行中的任务数 **/
+	/** 获得任务数量追踪器 **/
 	private TaskTracker taskTracker;
 
 	/** xmpp管理器 **/
@@ -85,24 +77,20 @@ public class NotificationService extends Service {
 		connectivityReceiver = new ConnectivityReceiver(this);// 网络是否可用广播接收者
 		phoneStateListener = new PhoneStateChangeListener(this);// 手机状态改变监听(网络数据)
 		executorService = Executors.newSingleThreadExecutor();// 创建一个单线程池
-		taskSubmitter = new TaskSubmitter(this);// 提交一个新的运行任务
-		taskTracker = new TaskTracker(this);// 监测(控制)运行中的任务数
+		taskSubmitter = new TaskSubmitter(this);// 任务提交器
+		taskTracker = new TaskTracker(this);// 获得任务数量追踪器
 	}
 
 	@Override
 	public void onCreate() {
-		L.d(LOGTAG, "onCreate()...");
-		telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-		// wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
-		// connectivityManager = (ConnectivityManager)
-		// getSystemService(Context.CONNECTIVITY_SERVICE);
-
+		L.d(TAG, "onCreate()...");
 		sharedPrefs = getSharedPreferences(Constants.SHARED_PREFERENCE_NAME,
 				Context.MODE_PRIVATE);
 
-		// Get deviceId
+		telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+
+		// 获得手机 deviceId
 		deviceId = telephonyManager.getDeviceId();
-		// L.d(LOGTAG, "deviceId=" + deviceId);
 		Editor editor = sharedPrefs.edit();
 		editor.putString(Constants.DEVICE_ID, deviceId);
 		editor.commit();
@@ -122,7 +110,7 @@ public class NotificationService extends Service {
 				editor.commit();
 			}
 		}
-		L.d(LOGTAG, "deviceId=" + deviceId);
+		L.i(TAG, "deviceId=" + deviceId);
 
 		xmppManager = new XmppManager(this);
 
@@ -135,29 +123,29 @@ public class NotificationService extends Service {
 
 	@Override
 	public void onStart(Intent intent, int startId) {
-		L.d(LOGTAG, "onStart()...");
+		L.d(TAG, "onStart()...");
 	}
 
 	@Override
 	public void onDestroy() {
-		L.d(LOGTAG, "onDestroy()...");
+		L.d(TAG, "onDestroy()...");
 		stop();
 	}
 
 	@Override
 	public IBinder onBind(Intent intent) {
-		L.d(LOGTAG, "onBind()...");
+		L.d(TAG, "onBind()...");
 		return null;
 	}
 
 	@Override
 	public void onRebind(Intent intent) {
-		L.d(LOGTAG, "onRebind()...");
+		L.d(TAG, "onRebind()...");
 	}
 
 	@Override
 	public boolean onUnbind(Intent intent) {
-		L.d(LOGTAG, "onUnbind()...");
+		L.d(TAG, "onUnbind()...");
 		return true;
 	}
 
@@ -180,7 +168,7 @@ public class NotificationService extends Service {
 	}
 
 	/**
-	 * 获得提交一个新的运行任务
+	 * 获得任务提交器
 	 * 
 	 * @return
 	 */
@@ -189,7 +177,7 @@ public class NotificationService extends Service {
 	}
 
 	/**
-	 * 监测(控制)运行中的任务数
+	 * 获得任务数量追踪器
 	 * 
 	 * @return
 	 */
@@ -228,7 +216,7 @@ public class NotificationService extends Service {
 	 * 网络是连接的
 	 */
 	public void connect() {
-		L.d(LOGTAG, "connect()...");
+		L.d(TAG, "connect()...");
 		taskSubmitter.submit(new Runnable() {
 			public void run() {
 				// 使xmpp连接网络
@@ -241,7 +229,7 @@ public class NotificationService extends Service {
 	 * 网络没有连接
 	 */
 	public void disconnect() {
-		L.d(LOGTAG, "disconnect()...");
+		L.d(TAG, "disconnect()...");
 		taskSubmitter.submit(new Runnable() {
 			public void run() {
 				NotificationService.this.getXmppManager().disconnect();
@@ -271,7 +259,7 @@ public class NotificationService extends Service {
 	 * 注册(网络是否可用广播接收者 )
 	 */
 	private void registerConnectivityReceiver() {
-		L.d(LOGTAG, "registerConnectivityReceiver()...");
+		L.d(TAG, "registerConnectivityReceiver()...");
 		// 监听数据连接状态
 		telephonyManager.listen(phoneStateListener,
 				PhoneStateListener.LISTEN_DATA_CONNECTION_STATE);
@@ -285,7 +273,7 @@ public class NotificationService extends Service {
 	 * 注销(网络是否可用广播接收者 )
 	 */
 	private void unregisterConnectivityReceiver() {
-		L.d(LOGTAG, "unregisterConnectivityReceiver()...");
+		L.d(TAG, "unregisterConnectivityReceiver()...");
 		// 停止监听
 		telephonyManager.listen(phoneStateListener,
 				PhoneStateListener.LISTEN_NONE);
@@ -293,30 +281,41 @@ public class NotificationService extends Service {
 	}
 
 	/**
-	 * 注册广播接收者(通知栏、网络)
+	 * 启动
+	 * 
+	 * <pre>
+	 * 1.注册通知栏消息的广播接收者 
+	 * 2.注册网络状态的广播接收者 
+	 * 3.xmpp建立连接
+	 * </pre>
 	 */
 	private void start() {
-		L.d(LOGTAG, "start()...");
+		L.d(TAG, "start()...");
 		registerNotificationReceiver();
 		registerConnectivityReceiver();
-		// Intent intent = getIntent();
-		// startService(intent);
 		xmppManager.connect();// 建立连接
 	}
 
 	/**
-	 * 注销广播接收者(通知栏、网络)
+	 * 注销
+	 * 
+	 * <pre>
+	 * 1.注销通知栏消息的广播接收者 
+	 * 2.注销网络状态的广播接收者 
+	 * 3.xmpp断开连接
+	 * 4.平滑停止线程池
+	 * </pre>
 	 */
 	private void stop() {
-		L.d(LOGTAG, "stop()...");
+		L.d(TAG, "stop()...");
 		unregisterNotificationReceiver();
 		unregisterConnectivityReceiver();
 		xmppManager.disconnect();// 断开连接
-		executorService.shutdown();// 断开线程
+		executorService.shutdown();// 平滑停止线程池
 	}
 
 	/**
-	 * 提交一个新的运行任务
+	 * 任务提交器
 	 */
 	public class TaskSubmitter {
 
@@ -333,21 +332,21 @@ public class NotificationService extends Service {
 		 *            要被执行的任务
 		 * @return
 		 */
-		@SuppressWarnings("unchecked")
-		public Future submit(Runnable task) {
-			Future result = null;
+		public Future<?> submit(Runnable task) {
+			Future<?> result = null;
+			// ExecutorService正常关闭后isTerminated方法返回true
+			// isShutdown方法：这个方法在ExecutorService关闭后返回true，否则返回false。
 			if (!notificationService.getExecutorService().isTerminated()
 					&& !notificationService.getExecutorService().isShutdown()
-					&& task != null) {// 如果线程还在运行
+					&& task != null) {// 如果线程池还在运行
 				result = notificationService.getExecutorService().submit(task);// 提交一个任务
 			}
 			return result;
 		}
-
 	}
 
 	/**
-	 * 监测(控制)运行中的任务数
+	 * 任务数量跟踪器
 	 */
 	public class TaskTracker {
 
@@ -366,7 +365,7 @@ public class NotificationService extends Service {
 		public void increase() {
 			synchronized (notificationService.getTaskTracker()) {
 				notificationService.getTaskTracker().count++;
-				L.d(LOGTAG, "Incremented task count to " + count);
+				L.d(TAG, "执行增加任务，当前任务总数：" + count);
 			}
 		}
 
@@ -376,7 +375,7 @@ public class NotificationService extends Service {
 		public void decrease() {
 			synchronized (notificationService.getTaskTracker()) {
 				notificationService.getTaskTracker().count--;
-				L.d(LOGTAG, "Decremented task count to " + count);
+				L.d(TAG, "执行减少任务，当前任务总数：" + count);
 			}
 		}
 
