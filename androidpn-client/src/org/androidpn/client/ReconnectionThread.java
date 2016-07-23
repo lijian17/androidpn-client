@@ -16,15 +16,14 @@
 package org.androidpn.client;
 
 /**
- * A thread class for recennecting the server.<br>
- * 重连线程(管理：当网络异常被中断后，线程内管理多少时间再次发起连接请求)
+ * 重连线程(管理：当网络被异常中断后，线程内管理多少时间再次发起连接请求)<br>
+ * 心跳维持（有一个心跳维持时间算法）
  * 
- * @author Sehwan Noh (devnoh@gmail.com)
+ * @author lijian
+ * @date 2016-7-23 下午11:52:59
  */
 public class ReconnectionThread extends Thread {
-
-	private static final String LOGTAG = LogUtil
-			.makeLogTag(ReconnectionThread.class);
+	private static final String TAG = "ReconnectionThread";
 
 	private final XmppManager xmppManager;
 
@@ -41,10 +40,12 @@ public class ReconnectionThread extends Thread {
 		this.waiting = 0;
 	}
 
+	@Override
 	public void run() {
 		try {
 			while (!isInterrupted()) {// 如果线程没有被中断
-				L.d(LOGTAG, "Trying to reconnect in " + waiting() + " seconds");
+				L.i(TAG, waiting() + "s后，尝试重新连接");
+
 				Thread.sleep((long) waiting() * 1000L);// 睡眠几秒后，重新请求连接
 				xmppManager.connect();
 				waiting++;
@@ -52,13 +53,18 @@ public class ReconnectionThread extends Thread {
 		} catch (final InterruptedException e) {
 			xmppManager.getHandler().post(new Runnable() {
 				public void run() {
-					// 连接异常
+					// 连接异常（注册重连失败）
 					xmppManager.getConnectionListener().reconnectionFailed(e);
 				}
 			});
 		}
 	}
 
+	/**
+	 * 等待重连时间算法
+	 * 
+	 * @return
+	 */
 	private int waiting() {
 		if (waiting > 20) {
 			return 600;

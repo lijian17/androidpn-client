@@ -80,7 +80,7 @@ public class XmppManager {
 	/** XMPP的密码 **/
 	private String password;
 
-	/** 持久连接监听器 **/
+	/** 长连接监听器 **/
 	private ConnectionListener connectionListener;
 
 	/** 通知数据包监听器 **/
