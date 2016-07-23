@@ -22,17 +22,15 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
 /**
- * A broadcast receiver to handle the changes in network connectiion states.<br>
  * 网络变化广播接收器
  * 
- * @author Sehwan Noh (devnoh@gmail.com)
+ * @author lijian
+ * @date 2016-7-23 下午1:28:01
  */
 public class ConnectivityReceiver extends BroadcastReceiver {
+	private static final String TAG = "ConnectivityReceiver";
 
-	private static final String LOGTAG = LogUtil
-			.makeLogTag(ConnectivityReceiver.class);
-
-	private NotificationService notificationService;
+	private final NotificationService notificationService;
 
 	public ConnectivityReceiver(NotificationService notificationService) {
 		this.notificationService = notificationService;
@@ -40,9 +38,9 @@ public class ConnectivityReceiver extends BroadcastReceiver {
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		L.d(LOGTAG, "ConnectivityReceiver.onReceive()...");
+		L.d(TAG, "ConnectivityReceiver.onReceive()...");
 		String action = intent.getAction();
-		L.d(LOGTAG, "action=" + action);
+		L.d(TAG, "action=" + action);
 
 		ConnectivityManager connectivityManager = (ConnectivityManager) context
 				.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -52,17 +50,17 @@ public class ConnectivityReceiver extends BroadcastReceiver {
 
 		// 获取当前的网络连接是否可用
 		if (networkInfo != null) {
-			L.d(LOGTAG, "Network Type  = " + networkInfo.getTypeName());
-			L.d(LOGTAG, "Network State = " + networkInfo.getState());
+			L.d(TAG, "网络类型  = " + networkInfo.getTypeName());
+			L.d(TAG, "网络状态  = " + networkInfo.getState());
 			if (networkInfo.isConnected()) {
-				L.i(LOGTAG, "Network connected");
+				L.i(TAG, "网络是连接的");
 				notificationService.connect();
 			}
 		} else {
 			// 当网络不可用时，跳转到网络设置页面
 			// startActivityForResult(new
 			// Intent(android.provider.Settings.ACTION_WIRELESS_SETTINGS), 1);
-			L.e(LOGTAG, "Network unavailable");
+			L.e(TAG, "网络不可用的");
 			notificationService.disconnect();
 		}
 
