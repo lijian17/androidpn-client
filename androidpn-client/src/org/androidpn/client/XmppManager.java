@@ -382,6 +382,8 @@ public class XmppManager {
 					taskTracker.decrease();
 				}
 			} else {
+				// 解决服务器端重启后,客户端不能成功连接androidpn服务器
+				runTask();
 				// 否则加入任务队列中
 				taskList.add(runnable);
 			}
