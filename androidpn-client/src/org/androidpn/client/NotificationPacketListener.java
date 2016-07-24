@@ -21,15 +21,13 @@ import org.jivesoftware.smack.packet.Packet;
 import android.content.Intent;
 
 /**
- * This class notifies the receiver of incoming notifcation packets
- * asynchronously. <br>
- * 接收从服务器端推送过来的Packet
+ * 接收从服务器端推送过来的Packet监听器
  * 
- * @author Sehwan Noh (devnoh@gmail.com)
+ * @author lijian
+ * @date 2016-7-24 上午6:49:06
  */
 public class NotificationPacketListener implements PacketListener {
-
-	private static final String LOGTAG = LogUtil.makeLogTag(NotificationPacketListener.class);
+	private static final String TAG = "NotificationPacketListener";
 
 	private final XmppManager xmppManager;
 
@@ -47,13 +45,14 @@ public class NotificationPacketListener implements PacketListener {
 	 */
 	@Override
 	public void processPacket(Packet packet) {
-		L.d(LOGTAG, "NotificationPacketListener.processPacket()...");
-		L.d(LOGTAG, "packet.toXML()=" + packet.toXML());
+		L.i(TAG, "NotificationPacketListener.processPacket()...");
+		L.i(TAG, "packet.toXML()=" + packet.toXML());
 
 		if (packet instanceof NotificationIQ) {
 			NotificationIQ notification = (NotificationIQ) packet;
 
-			if (notification.getChildElementXML().contains("androidpn:iq:notification")) {
+			if (notification.getChildElementXML().contains(
+					Constants.XMPP_PROTOCOL_NAMESPACE)) {
 				String notificationId = notification.getId();
 				String notificationApiKey = notification.getApiKey();
 				String notificationTitle = notification.getTitle();

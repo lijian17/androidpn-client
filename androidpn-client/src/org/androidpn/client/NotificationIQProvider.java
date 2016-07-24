@@ -20,10 +20,10 @@ import org.jivesoftware.smack.provider.IQProvider;
 import org.xmlpull.v1.XmlPullParser;
 
 /**
- * This class parses incoming IQ packets to NotificationIQ objects.<br>
  * 一个xml的处理类，负责把一个xml结构的消息内容转换成一个NotificationIQ通知实体对象
  * 
- * @author Sehwan Noh (devnoh@gmail.com)
+ * @author lijian
+ * @date 2016-7-24 上午8:34:07
  */
 public class NotificationIQProvider implements IQProvider {
 
@@ -32,8 +32,8 @@ public class NotificationIQProvider implements IQProvider {
 
 	@Override
 	public IQ parseIQ(XmlPullParser parser) throws Exception {
-		//通过XmlPullParser解析xml,并将其转化为一个NotificationIQ
-		//创建一个通知实体
+		// 通过XmlPullParser解析xml,并将其转化为一个NotificationIQ
+		// 创建一个通知实体
 		NotificationIQ notification = new NotificationIQ();
 		for (boolean done = false; !done;) {
 			int eventType = parser.next();
@@ -53,7 +53,9 @@ public class NotificationIQProvider implements IQProvider {
 				if ("uri".equals(parser.getName())) {
 					notification.setUri(parser.nextText());
 				}
-			} else if (eventType == XmlPullParser.END_TAG && "notification".equals(parser.getName())) {
+			} else if (eventType == XmlPullParser.END_TAG
+					&& Constants.XMPP_PROTOCOL_ELEMENTNAME.equals(parser
+							.getName())) {
 				done = true;
 			}
 		}

@@ -16,10 +16,10 @@
 package org.androidpn.client;
 
 /**
- * Static constants for this package.<br>
  * 静态常量
  * 
- * @author Sehwan Noh (devnoh@gmail.com)
+ * @author lijian
+ * @date 2016-7-24 上午8:26:23
  */
 public class Constants {
 
@@ -51,6 +51,12 @@ public class Constants {
 
 	/** XMPP的密码 **/
 	public static final String XMPP_PASSWORD = "XMPP_PASSWORD";
+	
+	/** XMPP通信协议的名称空间 **/
+	public static final String XMPP_PROTOCOL_NAMESPACE = "androidpn:iq:notification";
+
+	/** XMPP通信协议的节点名 **/
+	public static final String XMPP_PROTOCOL_ELEMENTNAME = "notification";
 
 	// public static final String USER_KEY = "USER_KEY";
 
