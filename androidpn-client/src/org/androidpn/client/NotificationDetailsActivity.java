@@ -23,6 +23,7 @@ import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
@@ -74,14 +75,6 @@ public class NotificationDetailsActivity extends Activity {
 		Log.d(TAG, "notificationMessage=" + notificationMessage);
 		Log.d(TAG, "notificationUri=" + notificationUri);
 
-		// Display display = getWindowManager().getDefaultDisplay();
-		// View rootView;
-		// if (display.getWidth() > display.getHeight()) {
-		// rootView = null;
-		// } else {
-		// rootView = null;
-		// }
-
 		View rootView = createView(notificationTitle, notificationMessage,
 				notificationUri);
 		setContentView(rootView);
@@ -95,20 +88,19 @@ public class NotificationDetailsActivity extends Activity {
 		linearLayout.setOrientation(LinearLayout.VERTICAL);
 		linearLayout.setPadding(5, 5, 5, 5);
 		LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
-				LinearLayout.LayoutParams.FILL_PARENT,
-				LinearLayout.LayoutParams.FILL_PARENT);
+				LinearLayout.LayoutParams.MATCH_PARENT,
+				LinearLayout.LayoutParams.MATCH_PARENT);
 		linearLayout.setLayoutParams(layoutParams);
 
 		TextView textTitle = new TextView(this);
 		textTitle.setText(title);
-		textTitle.setTextSize(18);
-		// textTitle.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+		textTitle.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
 		textTitle.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
 		textTitle.setTextColor(0xff000000);
 		textTitle.setGravity(Gravity.CENTER);
 
 		layoutParams = new LinearLayout.LayoutParams(
-				LinearLayout.LayoutParams.FILL_PARENT,
+				LinearLayout.LayoutParams.MATCH_PARENT,
 				LinearLayout.LayoutParams.WRAP_CONTENT);
 		layoutParams.setMargins(30, 30, 30, 0);
 		textTitle.setLayoutParams(layoutParams);
@@ -116,13 +108,12 @@ public class NotificationDetailsActivity extends Activity {
 
 		TextView textDetails = new TextView(this);
 		textDetails.setText(message);
-		textDetails.setTextSize(14);
-		// textTitle.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+		textTitle.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
 		textDetails.setTextColor(0xff333333);
 		textDetails.setGravity(Gravity.CENTER);
 
 		layoutParams = new LinearLayout.LayoutParams(
-				LinearLayout.LayoutParams.FILL_PARENT,
+				LinearLayout.LayoutParams.MATCH_PARENT,
 				LinearLayout.LayoutParams.WRAP_CONTENT);
 		layoutParams.setMargins(30, 10, 30, 20);
 		textDetails.setLayoutParams(layoutParams);
