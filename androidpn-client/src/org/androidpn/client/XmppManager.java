@@ -90,15 +90,13 @@ public class XmppManager {
 	/** 任务数组 **/
 	private List<Runnable> taskList;
 
-	/** **/
+	/** 当前是否有任务正运行 **/
 	private boolean running = false;
 
-	/****/
+	/** 任务运行的将来结果 **/
 	private Future<?> futureTask;
 
-	/**
-	 * 重连线程(管理：当网络异常被中断后，线程内管理多少时间再次发起连接请求)
-	 **/
+	/** 重连线程(管理：当网络异常被中断后，线程内管理多少时间再次发起连接请求) **/
 	private Thread reconnection;
 
 	public XmppManager(NotificationService notificationService) {
@@ -141,7 +139,7 @@ public class XmppManager {
 	}
 
 	/**
-	 * 终止持久连接
+	 * 终止长连接
 	 */
 	public void terminatePersistentConnection() {
 		L.i(TAG, "terminatePersistentConnection()...");
@@ -309,7 +307,7 @@ public class XmppManager {
 	 */
 	private String newRandomUUID() {
 		String uuidRaw = UUID.randomUUID().toString();
-		L.i(TAG, "UUID--->" + uuidRaw);
+		L.i(TAG, "newRandomUUID--->" + uuidRaw);
 		return uuidRaw.replaceAll("-", "");
 	}
 

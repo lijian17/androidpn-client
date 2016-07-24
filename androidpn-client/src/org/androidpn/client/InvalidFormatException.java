@@ -16,10 +16,10 @@
 package org.androidpn.client;
 
 /**
- * Runtime exceptions produced by wrong meta-data settings.<br>
  * 无效格式异常
  * 
- * @author Sehwan Noh (devnoh@gmail.com)
+ * @author lijian
+ * @date 2016-7-24 上午9:37:28
  */
 public class InvalidFormatException extends RuntimeException {
 

@@ -31,9 +31,7 @@ import android.util.Log;
  * @date 2016-7-23 上午9:10:03
  */
 public class NotificationSettingsActivity extends PreferenceActivity {
-
-	private static final String LOGTAG = LogUtil
-			.makeLogTag(NotificationSettingsActivity.class);
+	private static final String TAG = "NotificationSettingsActivity";
 
 	public NotificationSettingsActivity() {
 	}
@@ -59,7 +57,7 @@ public class NotificationSettingsActivity extends PreferenceActivity {
 	 * @return
 	 */
 	private PreferenceScreen createPreferenceHierarchy() {
-		Log.d(LOGTAG, "createSettingsPreferenceScreen()...");
+		Log.d(TAG, "createSettingsPreferenceScreen()...");
 
 		PreferenceManager preferenceManager = getPreferenceManager();
 		preferenceManager
