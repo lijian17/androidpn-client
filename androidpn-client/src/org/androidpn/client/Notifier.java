@@ -42,6 +42,8 @@ public class Notifier {
 
 	private NotificationManager notificationManager;
 
+	private static int notifyNum = 0;
+
 	public Notifier(Context context) {
 		this.context = context;
 		this.sharedPrefs = context.getSharedPreferences(
@@ -110,7 +112,9 @@ public class Notifier {
 			intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
-			PendingIntent contentIntent = PendingIntent.getActivity(context, 0,
+			// 推送多次只显示最后一次的的问题
+			// 修改客户端Notifier类中notify方法中的PendingIntent.getActivity方法的第二个参数每次不同就可以解决了，我是定义一个静态变量后每次+1解决
+			PendingIntent contentIntent = PendingIntent.getActivity(context, notifyNum++,
 					intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
 			notification.setLatestEventInfo(context, title, message,
