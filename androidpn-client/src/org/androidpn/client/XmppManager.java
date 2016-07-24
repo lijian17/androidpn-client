@@ -558,7 +558,6 @@ public class XmppManager {
 			if (!xmppManager.isAuthenticated()) {// 如果账户未认证
 				L.i(TAG, "username=" + username);
 				L.i(TAG, "password=" + password);
-
 				try {
 					// 登陆
 					xmppManager.getConnection().login(
