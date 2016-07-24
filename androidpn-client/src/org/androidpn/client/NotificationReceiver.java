@@ -39,9 +39,9 @@ public final class NotificationReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        L.d(TAG, "NotificationReceiver.onReceive()...");
+        L.i(TAG, "NotificationReceiver.onReceive()...");
         String action = intent.getAction();
-        L.d(TAG, "action=" + action);
+        L.i(TAG, "action=" + action);
 
         /* Androidpn_NotificationPacketListener(24421): 
 			packet.toXML()=
@@ -63,11 +63,11 @@ public final class NotificationReceiver extends BroadcastReceiver {
             String notificationUri = intent
                     .getStringExtra(Constants.NOTIFICATION_URI);
 
-            L.d(TAG, "notificationId=" + notificationId);
-            L.d(TAG, "notificationApiKey=" + notificationApiKey);
-            L.d(TAG, "notificationTitle=" + notificationTitle);
-            L.d(TAG, "notificationMessage=" + notificationMessage);
-            L.d(TAG, "notificationUri=" + notificationUri);
+            L.i(TAG, "notificationId=" + notificationId);
+            L.i(TAG, "notificationApiKey=" + notificationApiKey);
+            L.i(TAG, "notificationTitle=" + notificationTitle);
+            L.i(TAG, "notificationMessage=" + notificationMessage);
+            L.i(TAG, "notificationUri=" + notificationUri);
 
             /**
              * 广播接收者，当收到服务器推送过来的一个信息后，发出一个Notification告诉用户收到了信息，以便查看

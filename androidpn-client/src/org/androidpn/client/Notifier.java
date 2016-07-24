@@ -52,13 +52,13 @@ public class Notifier {
 
 	public void notify(String notificationId, String apiKey, String title,
 			String message, String uri) {
-		L.d(TAG, "notify()...");
+		L.i(TAG, "notify()...");
 
-		L.d(TAG, "notificationId=" + notificationId);
-		L.d(TAG, "notificationApiKey=" + apiKey);
-		L.d(TAG, "notificationTitle=" + title);
-		L.d(TAG, "notificationMessage=" + message);
-		L.d(TAG, "notificationUri=" + uri);
+		L.i(TAG, "notificationId=" + notificationId);
+		L.i(TAG, "notificationApiKey=" + apiKey);
+		L.i(TAG, "notificationTitle=" + title);
+		L.i(TAG, "notificationMessage=" + message);
+		L.i(TAG, "notificationUri=" + uri);
 
 		if (isNotificationEnabled()) {
 			// 显示Toast
