@@ -578,7 +578,7 @@ public class XmppManager {
 					PacketListener packetListener = xmppManager
 							.getNotificationPacketListener();
 					connection.addPacketListener(packetListener, packetFilter);
-
+					connection.startHeartBeat(); // 启动心跳
 					xmppManager.runTask();
 
 				} catch (XMPPException e) {

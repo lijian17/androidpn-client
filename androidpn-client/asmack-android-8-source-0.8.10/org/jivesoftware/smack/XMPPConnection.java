@@ -1098,4 +1098,13 @@ public class XMPPConnection extends Connection {
             }
         }
     }
+    
+    /**
+     * 启动心跳
+     */
+    public void startHeartBeat() {
+    	if (packetWriter != null) {
+			packetWriter.startHeartBeatThread();
+		}
+    }
 }
