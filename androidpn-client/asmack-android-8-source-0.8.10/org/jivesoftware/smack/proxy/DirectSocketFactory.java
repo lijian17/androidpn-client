@@ -45,7 +45,7 @@ class DirectSocketFactory
     {
         Socket newSocket = new Socket(Proxy.NO_PROXY);
         InetAddress resolved[] = InetAddress.getAllByName(host);
-        newSocket.connect(new InetSocketAddress(resolved[(roundrobin++) % resolved.length],port));
+        newSocket.connect(new InetSocketAddress(resolved[(roundrobin++) % resolved.length],port), 10 * 1000);// 加入10s超时
         return newSocket;
     }
 

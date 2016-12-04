@@ -43,7 +43,8 @@ public class ReconnectionThread extends Thread {
 	@Override
 	public void run() {
 		try {
-			while (!isInterrupted()) {// 如果线程没有被中断
+			while (!isInterrupted()
+					&& !xmppManager.getConnection().isAuthenticated()) {// 如果线程没有被中断
 				L.i(TAG, waiting() + "s后，尝试重新连接");
 
 				Thread.sleep((long) waiting() * 1000L);// 睡眠几秒后，重新请求连接

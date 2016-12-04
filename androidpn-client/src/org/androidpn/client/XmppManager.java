@@ -39,6 +39,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Handler;
+import android.os.SystemClock;
 
 /**
  * 管理客户端和服务器之间的连接，向服务器发送连接、注册、登陆请求任务
@@ -239,7 +240,8 @@ public class XmppManager {
 	 */
 	public void startReconnectionThread() {
 		synchronized (reconnection) {
-			if (!reconnection.isAlive()) {// 如果已经不是存活的,那将线程重启
+			if (reconnection == null || !reconnection.isAlive()) {// 如果已经不是存活的,那将线程重启
+				reconnection = new ReconnectionThread(this);
 				reconnection.setName("Xmpp Reconnection Thread");
 				reconnection.start();
 			}
@@ -382,8 +384,8 @@ public class XmppManager {
 					taskTracker.decrease();
 				}
 			} else {
-				// 解决服务器端重启后,客户端不能成功连接androidpn服务器
-				runTask();
+				// // 解决服务器端重启后,客户端不能成功连接androidpn服务器
+				// runTask();
 				// 否则加入任务队列中
 				taskList.add(runnable);
 			}
@@ -399,6 +401,23 @@ public class XmppManager {
 		editor.remove(Constants.XMPP_USERNAME);
 		editor.remove(Constants.XMPP_PASSWORD);
 		editor.commit();
+	}
+	
+	/**
+	 * 丢弃任务
+	 * 
+	 * @param dropCount
+	 */
+	private void dropTask(int dropCount) {
+		synchronized (taskList) {
+			if (taskList.size() >= dropCount) {
+				for (int i = 0; i < dropCount; i++) {
+					taskList.remove(0);
+					taskTracker.decrease();
+					L.i(TAG, "执行丢弃任务:" + i + "/" + dropCount);
+				}
+			}
+		}
 	}
 
 	/**
@@ -438,12 +457,13 @@ public class XmppManager {
 							Constants.XMPP_PROTOCOL_ELEMENTNAME,
 							Constants.XMPP_PROTOCOL_NAMESPACE,
 							new NotificationIQProvider());
-
+					xmppManager.runTask();
 				} catch (XMPPException e) {
 					L.e(TAG, "XMPP连接失败", e);
+					xmppManager.dropTask(2);
+					xmppManager.runTask();
+					xmppManager.startReconnectionThread();
 				}
-
-				xmppManager.runTask();
 
 			} else {
 				// 如果XMPP连接之前已经建立,那么就运行这个任务
@@ -459,6 +479,10 @@ public class XmppManager {
 	private class RegisterTask implements Runnable {
 
 		final XmppManager xmppManager;
+		
+		boolean isRegisterSucceed;
+		
+		boolean hasDropTask;
 
 		private RegisterTask() {
 			xmppManager = XmppManager.this;
@@ -468,6 +492,8 @@ public class XmppManager {
 			L.i(TAG, "RegisterTask.run()...");
 
 			if (!xmppManager.isRegistered()) {
+				isRegisterSucceed = false;
+				hasDropTask = false;
 				final String newUsername = newRandomUUID();
 				final String newPassword = newRandomUUID();
 
@@ -487,34 +513,39 @@ public class XmppManager {
 					 */
 					@Override
 					public void processPacket(Packet packet) {
-						L.i("RegisterTask.PacketListener",
-								"processPacket().....");
-						L.i("RegisterTask.PacketListener",
-								"packet=" + packet.toXML());
+						synchronized (xmppManager) {
+							L.i("RegisterTask.PacketListener",
+									"processPacket().....");
+							L.i("RegisterTask.PacketListener", "packet="
+									+ packet.toXML());
 
-						if (packet instanceof IQ) {// 如果是iq,强转为IQ
-							IQ response = (IQ) packet;
-							if (response.getType() == IQ.Type.ERROR) {// 如果是一个错误消息数据包
-								if (!response.getError().toString()
-										.contains("409")) {
-									L.e(TAG, "注册XMPP帐户时未知错误！ "
-											+ response.getError()
-													.getCondition());
+							if (packet instanceof IQ) {// 如果是iq,强转为IQ
+								IQ response = (IQ) packet;
+								if (response.getType() == IQ.Type.ERROR) {// 如果是一个错误消息数据包
+									if (!response.getError().toString()
+											.contains("409")) {
+										L.e(TAG, "注册XMPP帐户时未知错误！ "
+												+ response.getError()
+														.getCondition());
+									}
+								} else if (response.getType() == IQ.Type.RESULT) {
+									xmppManager.setUsername(newUsername);
+									xmppManager.setPassword(newPassword);
+									L.i(TAG, "username=" + newUsername);
+									L.i(TAG, "password=" + newPassword);
+
+									Editor editor = sharedPrefs.edit();
+									editor.putString(Constants.XMPP_USERNAME,
+											newUsername);
+									editor.putString(Constants.XMPP_PASSWORD,
+											newPassword);
+									editor.commit();
+									isRegisterSucceed = true;// 收到服务器注册成功的回调
+									L.i(TAG, "帐户注册成功");
+									if (hasDropTask) {
+										xmppManager.runTask();
+									}
 								}
-							} else if (response.getType() == IQ.Type.RESULT) {
-								xmppManager.setUsername(newUsername);
-								xmppManager.setPassword(newPassword);
-								L.i(TAG, "username=" + newUsername);
-								L.i(TAG, "password=" + newPassword);
-
-								Editor editor = sharedPrefs.edit();
-								editor.putString(Constants.XMPP_USERNAME,
-										newUsername);
-								editor.putString(Constants.XMPP_PASSWORD,
-										newPassword);
-								editor.commit();
-								L.i(TAG, "帐户注册成功");
-								xmppManager.runTask();
 							}
 						}
 					}
@@ -533,7 +564,15 @@ public class XmppManager {
 				registration.addAttribute("username", newUsername);
 				registration.addAttribute("password", newPassword);
 				connection.sendPacket(registration);// 发送注册数据包
-
+				SystemClock.sleep(10 * 1000); // 睡眠10s
+				synchronized (xmppManager) {
+					if (!isRegisterSucceed) {
+						xmppManager.dropTask(1);
+						xmppManager.runTask();
+						xmppManager.startReconnectionThread();
+						hasDropTask = true; // 注册未成功，将后续任务丢弃掉
+					}
+				}
 			} else {
 				L.i(TAG, "帐户是已经注册的");
 				xmppManager.runTask();
@@ -579,8 +618,6 @@ public class XmppManager {
 							.getNotificationPacketListener();
 					connection.addPacketListener(packetListener, packetFilter);
 					connection.startHeartBeat(); // 启动心跳
-					xmppManager.runTask();
-
 				} catch (XMPPException e) {
 					L.e(TAG, "LoginTask.run()... xmpp登陆error");
 					L.e(TAG, "无法登录到XMPP服务器. Caused by: " + e.getMessage());
@@ -600,8 +637,9 @@ public class XmppManager {
 					L.e(TAG, "LoginTask.run()... other error");
 					L.e(TAG, "无法登录到XMPP服务器. Caused by: " + e.getMessage());
 					xmppManager.startReconnectionThread();
+				} finally {
+					xmppManager.runTask();
 				}
-
 			} else {
 				L.i(TAG, "账户是已经登陆的");
 				xmppManager.runTask();
