@@ -57,6 +57,12 @@ public class Constants {
 
 	/** XMPP通信协议的节点名 **/
 	public static final String XMPP_PROTOCOL_ELEMENTNAME = "notification";
+	
+	/** XMPP通信协议的“消息回执”的名称空间 **/
+	public static final String XMPP_PROTOCOL_NAMESPACE_DELIVERCONFIRM = "androidpn:iq:deliverconfirm";
+
+	/** XMPP通信协议“消息回执”的节点名 **/
+	public static final String XMPP_PROTOCOL_DELIVERCONFIRM = "deliverconfirm";
 
 	// public static final String USER_KEY = "USER_KEY";
 
