@@ -67,8 +67,14 @@ public class Constants {
 	/** XMPP通信协议的“设置别名”的名称空间 **/
 	public static final String XMPP_PROTOCOL_NAMESPACE_SETALIAS = "androidpn:iq:setalias";
 	
-	/** XMPP通信协议“设置”的节点名 **/
+	/** XMPP通信协议“设置别名”的节点名 **/
 	public static final String XMPP_PROTOCOL_SETALIAS = "setalias";
+	
+	/** XMPP通信协议的“设置标签集”的名称空间 **/
+	public static final String XMPP_PROTOCOL_NAMESPACE_SETTAGS = "androidpn:iq:settags";
+	
+	/** XMPP通信协议“设置标签集”的节点名 **/
+	public static final String XMPP_PROTOCOL_SETTAGS = "settags";
 
 	// public static final String USER_KEY = "USER_KEY";
 
