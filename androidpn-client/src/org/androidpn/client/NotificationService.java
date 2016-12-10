@@ -42,6 +42,9 @@ public class NotificationService extends Service {
 
 	public static final String SERVICE_NAME = "org.androidpn.client.NotificationService";
 
+	/** 消息通知服务对象 **/
+	private static NotificationService notificationService;
+
 	/** 手机管理器 **/
 	private TelephonyManager telephonyManager;
 
@@ -81,9 +84,19 @@ public class NotificationService extends Service {
 		taskTracker = new TaskTracker(this);// 获得任务数量追踪器
 	}
 
+	/**
+	 * 获得消息通知服务对象
+	 * 
+	 * @return
+	 */
+	public static NotificationService getNotificationService() {
+		return notificationService;
+	}
+
 	@Override
 	public void onCreate() {
 		L.i(TAG, "onCreate()...");
+		notificationService = this;
 		sharedPrefs = getSharedPreferences(Constants.SHARED_PREFERENCE_NAME,
 				Context.MODE_PRIVATE);
 
@@ -129,6 +142,7 @@ public class NotificationService extends Service {
 	@Override
 	public void onDestroy() {
 		L.i(TAG, "onDestroy()...");
+		notificationService = null;
 		stop();
 	}
 

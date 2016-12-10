@@ -17,11 +17,15 @@ package org.androidpn.client;
 
 import java.util.Properties;
 
+import org.jivesoftware.smack.packet.IQ;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.os.SystemClock;
+import android.text.TextUtils;
 
 /**
  * 加载客户端中的配置信息，并管理NotifactionService服务的启动与关闭
@@ -111,6 +115,49 @@ public final class ServiceManager {
 	public void stopService() {
 		Intent intent = NotificationService.getIntent();
 		context.stopService(intent);
+	}
+
+	/**
+	 * 设置别名
+	 * 
+	 * @param alias
+	 *            别名
+	 */
+	public void setAlias(final String alias) {
+		final String username = sharedPrefs.getString(Constants.XMPP_USERNAME,
+				"");
+		if (TextUtils.isEmpty(alias) || TextUtils.isEmpty(username)) {
+			return;
+		}
+		new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				// 睡眠1s以保证NotificationService对象创建好
+				SystemClock.sleep(1000);
+				NotificationService notificationService = NotificationService
+						.getNotificationService();
+				XmppManager xmppManager = notificationService.getXmppManager();
+				if (xmppManager != null) {
+					if (!xmppManager.isAuthenticated()) {
+						try {
+							synchronized (xmppManager) {
+								L.d(TAG, "等待身份认证");
+								xmppManager.wait();
+							}
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
+					L.d(TAG, "身份认证成功，现在开始发送“设置别名”");
+					SetAliasIQ iq = new SetAliasIQ();
+					iq.setType(IQ.Type.SET);
+					iq.setUsername(username);
+					iq.setAlias(alias);
+					xmppManager.getConnection().sendPacket(iq);
+				}
+			}
+		}).start();
 	}
 
 	/**

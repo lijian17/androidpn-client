@@ -327,7 +327,7 @@ public class XmppManager {
 	 * 
 	 * @return
 	 */
-	private boolean isAuthenticated() {
+	public boolean isAuthenticated() {
 		return connection != null && connection.isConnected()
 				&& connection.isAuthenticated();
 	}
@@ -402,7 +402,7 @@ public class XmppManager {
 		editor.remove(Constants.XMPP_PASSWORD);
 		editor.commit();
 	}
-	
+
 	/**
 	 * 丢弃任务
 	 * 
@@ -479,9 +479,9 @@ public class XmppManager {
 	private class RegisterTask implements Runnable {
 
 		final XmppManager xmppManager;
-		
+
 		boolean isRegisterSucceed;
-		
+
 		boolean hasDropTask;
 
 		private RegisterTask() {
@@ -618,6 +618,9 @@ public class XmppManager {
 							.getNotificationPacketListener();
 					connection.addPacketListener(packetListener, packetFilter);
 					connection.startHeartBeat(); // 启动心跳
+					synchronized (xmppManager) {
+						xmppManager.notifyAll();
+					}
 				} catch (XMPPException e) {
 					L.e(TAG, "LoginTask.run()... xmpp登陆error");
 					L.e(TAG, "无法登录到XMPP服务器. Caused by: " + e.getMessage());

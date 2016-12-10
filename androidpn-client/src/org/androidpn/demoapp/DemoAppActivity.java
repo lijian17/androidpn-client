@@ -47,6 +47,7 @@ public class DemoAppActivity extends Activity {
 		ServiceManager serviceManager = new ServiceManager(this);
 		serviceManager.setNotificationIcon(R.drawable.notification);
 		serviceManager.startService();
+		serviceManager.setAlias("IT");
 	}
 
 }
