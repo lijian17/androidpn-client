@@ -15,7 +15,6 @@
  */
 package org.androidpn.client;
 
-import java.util.List;
 import java.util.Properties;
 
 import org.jivesoftware.smack.packet.IQ;
@@ -119,50 +118,6 @@ public final class ServiceManager {
 	}
 
 	/**
-	 * 设置标签集
-	 * 
-	 * @param tagsList
-	 *            标签集合
-	 */
-	public void setTags(final List<String> tagsList) {
-		final String username = sharedPrefs.getString(Constants.XMPP_USERNAME,
-				"");
-		if (tagsList == null || tagsList.isEmpty()
-				|| TextUtils.isEmpty(username)) {
-			return;
-		}
-		new Thread(new Runnable() {
-
-			@Override
-			public void run() {
-				// 睡眠1s以保证NotificationService对象创建好
-				SystemClock.sleep(1000);
-				NotificationService notificationService = NotificationService
-						.getNotificationService();
-				XmppManager xmppManager = notificationService.getXmppManager();
-				if (xmppManager != null) {
-					if (!xmppManager.isAuthenticated()) {
-						try {
-							synchronized (xmppManager) {
-								L.d(TAG, "等待身份认证setTags");
-								xmppManager.wait();
-							}
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-					}
-					L.d(TAG, "身份认证成功，现在开始发送“设置标签集”");
-					SetTagsIQ iq = new SetTagsIQ();
-					iq.setType(IQ.Type.SET);
-					iq.setUsername(username);
-					iq.setTagList(tagsList);
-					xmppManager.getConnection().sendPacket(iq);
-				}
-			}
-		}).start();
-	}
-
-	/**
 	 * 设置别名
 	 * 
 	 * @param alias
@@ -187,7 +142,7 @@ public final class ServiceManager {
 					if (!xmppManager.isAuthenticated()) {
 						try {
 							synchronized (xmppManager) {
-								L.d(TAG, "等待身份认证setAlias");
+								L.d(TAG, "等待身份认证");
 								xmppManager.wait();
 							}
 						} catch (InterruptedException e) {
