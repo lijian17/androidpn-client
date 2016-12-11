@@ -62,19 +62,22 @@ public final class NotificationReceiver extends BroadcastReceiver {
                     .getStringExtra(Constants.NOTIFICATION_MESSAGE);
             String notificationUri = intent
                     .getStringExtra(Constants.NOTIFICATION_URI);
+            String notificationImageUrl = intent
+            		.getStringExtra(Constants.NOTIFICATION_IMAGE_URL);
 
             L.i(TAG, "notificationId=" + notificationId);
             L.i(TAG, "notificationApiKey=" + notificationApiKey);
             L.i(TAG, "notificationTitle=" + notificationTitle);
             L.i(TAG, "notificationMessage=" + notificationMessage);
             L.i(TAG, "notificationUri=" + notificationUri);
+            L.i(TAG, "notificationImageUrl=" + notificationImageUrl);
 
             /**
              * 广播接收者，当收到服务器推送过来的一个信息后，发出一个Notification告诉用户收到了信息，以便查看
              */
             Notifier notifier = new Notifier(context);
             notifier.notify(notificationId, notificationApiKey,
-                    notificationTitle, notificationMessage, notificationUri);
+                    notificationTitle, notificationMessage, notificationUri, notificationImageUrl);
         }
 
         //        } else if (Constants.ACTION_NOTIFICATION_CLICKED.equals(action)) {

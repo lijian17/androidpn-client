@@ -15,14 +15,20 @@
  */
 package org.androidpn.client;
 
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.ImageLoader;
+import com.android.volley.toolbox.ImageLoader.ImageCache;
+import com.android.volley.toolbox.NetworkImageView;
+import com.android.volley.toolbox.Volley;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -43,6 +49,9 @@ public class NotificationDetailsActivity extends Activity {
 
 	private String callbackActivityClassName;
 
+	/** 网络请求队列 */
+	private RequestQueue mQueue;
+
 	public NotificationDetailsActivity() {
 	}
 
@@ -56,6 +65,8 @@ public class NotificationDetailsActivity extends Activity {
 				Constants.CALLBACK_ACTIVITY_PACKAGE_NAME, "");
 		callbackActivityClassName = sharedPrefs.getString(
 				Constants.CALLBACK_ACTIVITY_CLASS_NAME, "");
+		
+		mQueue = Volley.newRequestQueue(this);
 
 		Intent intent = getIntent();
 		String notificationId = intent
@@ -68,20 +79,23 @@ public class NotificationDetailsActivity extends Activity {
 				.getStringExtra(Constants.NOTIFICATION_MESSAGE);
 		String notificationUri = intent
 				.getStringExtra(Constants.NOTIFICATION_URI);
+		String notificationImageUrl = intent
+				.getStringExtra(Constants.NOTIFICATION_IMAGE_URL);
 
-		Log.d(TAG, "notificationId=" + notificationId);
-		Log.d(TAG, "notificationApiKey=" + notificationApiKey);
-		Log.d(TAG, "notificationTitle=" + notificationTitle);
-		Log.d(TAG, "notificationMessage=" + notificationMessage);
-		Log.d(TAG, "notificationUri=" + notificationUri);
+		L.d(TAG, "notificationId=" + notificationId);
+		L.d(TAG, "notificationApiKey=" + notificationApiKey);
+		L.d(TAG, "notificationTitle=" + notificationTitle);
+		L.d(TAG, "notificationMessage=" + notificationMessage);
+		L.d(TAG, "notificationUri=" + notificationUri);
+		L.d(TAG, "notificationImageUrl=" + notificationImageUrl);
 
 		View rootView = createView(notificationTitle, notificationMessage,
-				notificationUri);
+				notificationUri, notificationImageUrl);
 		setContentView(rootView);
 	}
 
 	private View createView(final String title, final String message,
-			final String uri) {
+			final String uri, final String imageUrl) {
 
 		LinearLayout linearLayout = new LinearLayout(this);
 		linearLayout.setBackgroundColor(0xffeeeeee);
@@ -152,8 +166,27 @@ public class NotificationDetailsActivity extends Activity {
 		LinearLayout innerLayout = new LinearLayout(this);
 		innerLayout.setGravity(Gravity.CENTER);
 		innerLayout.addView(okButton);
-
+		
 		linearLayout.addView(innerLayout);
+
+		NetworkImageView imageView = new NetworkImageView(this);
+		layoutParams = new LinearLayout.LayoutParams(
+				LinearLayout.LayoutParams.WRAP_CONTENT,
+				LinearLayout.LayoutParams.WRAP_CONTENT);
+		imageView.setLayoutParams(layoutParams);
+		linearLayout.addView(imageView);
+		ImageLoader imageLoader = new ImageLoader(mQueue, new ImageCache() {
+			
+			@Override
+			public void putBitmap(String url, Bitmap bitmap) {
+			}
+			
+			@Override
+			public Bitmap getBitmap(String url) {
+				return null;
+			}
+		});
+		imageView.setImageUrl(imageUrl, imageLoader);
 
 		return linearLayout;
 	}

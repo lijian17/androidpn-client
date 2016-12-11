@@ -115,6 +115,9 @@ public class Constants {
 
 	/** 通知的Url **/
 	public static final String NOTIFICATION_URI = "NOTIFICATION_URI";
+	
+	/** 通知的图片地址 **/
+	public static final String NOTIFICATION_IMAGE_URL = "NOTIFICATION_IMAGE_URL";
 
 	/********************************** intent动作 ***************************************************************************************************/
 
