@@ -87,6 +87,9 @@ public class Constants {
 	/** 通知的logo图片 **/
 	public static final String NOTIFICATION_ICON = "NOTIFICATION_ICON";
 
+	/** 是否开机自启动 **/
+	public static final String SETTINGS_AUTO_START = "SETTINGS_AUTO_START";
+	
 	/** 是否显示推送的通知 **/
 	public static final String SETTINGS_NOTIFICATION_ENABLED = "SETTINGS_NOTIFICATION_ENABLED";
 

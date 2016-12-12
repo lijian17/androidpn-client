@@ -15,10 +15,14 @@
  */
 package org.androidpn.client;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.packet.Packet;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 
 /**
@@ -44,6 +48,7 @@ public class NotificationPacketListener implements PacketListener {
 	/**
 	 * 处理数据包
 	 */
+	@SuppressLint("SimpleDateFormat")
 	@Override
 	public void processPacket(Packet packet) {
 		L.i(TAG, "NotificationPacketListener.processPacket()...");
@@ -61,6 +66,17 @@ public class NotificationPacketListener implements PacketListener {
 				// String notificationTicker = notification.getTicker();
 				String notificationUri = notification.getUri();
 				String notificationImageUrl = notification.getImageUrl();
+				
+				NotificationHistory history = new NotificationHistory();
+				history.setApiKey(notificationApiKey);
+				history.setTitle(notificationTitle);
+				history.setMessage(notificationMessage);
+				history.setUri(notificationUri);
+				history.setImageUrl(notificationImageUrl);
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+				String time = sdf.format(new Date());
+				history.setTime(time);
+				history.save();
 
 				Intent intent = new Intent(Constants.ACTION_SHOW_NOTIFICATION);
 				intent.putExtra(Constants.NOTIFICATION_ID, notificationId);

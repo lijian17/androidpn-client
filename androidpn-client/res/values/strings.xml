@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <string name="app_name">AndroidpnClient</string>
     <string name="hello">Hello Android, DemoAppActivity!</string>
-    <string name="settings">Settings</string>
+    <string name="settings">通知设置</string>
+    <string name="histories">查看历史通知</string>
+
 </resources>

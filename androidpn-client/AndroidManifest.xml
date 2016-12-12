@@ -14,8 +14,11 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <!-- 监听开机广播权限 -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
+        android:name="org.litepal.LitePalApplication"
         android:icon="@drawable/icon"
         android:label="@string/app_name" >
         <activity
@@ -33,6 +36,9 @@
         <activity
             android:name="org.androidpn.client.NotificationSettingsActivity"
             android:label="通知设置界面" />
+        <activity
+            android:name="org.androidpn.client.NotificationHistoryActivity"
+            android:label="通知历史" />
 
         <service
             android:name="org.androidpn.client.NotificationService"
@@ -41,6 +47,16 @@
                 <action android:name="org.androidpn.client.NotificationService" />
             </intent-filter>
         </service>
+        
+        <receiver android:name="org.androidpn.client.BootCompletedReceiver"
+            android:enabled="true"
+            android:permission="android.permission.RECEIVE_BOOT_COMPLETED" >
+            <intent-filter android:priority="2147483647" >
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </receiver>
         <!--
 			<meta-data android:name="ANDROIDPN_API_KEY"
 			android:value="1234567890" />

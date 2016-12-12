@@ -65,6 +65,12 @@ public class NotificationSettingsActivity extends PreferenceActivity {
 		preferenceManager.setSharedPreferencesMode(Context.MODE_PRIVATE);
 
 		PreferenceScreen root = preferenceManager.createPreferenceScreen(this);
+		
+		CheckBoxPreference autoStart = new CheckBoxPreference(this);
+		autoStart.setKey(Constants.SETTINGS_AUTO_START);
+		autoStart.setTitle("开机自启动");
+		autoStart.setSummary("开机自动启动消息推送服务");
+		autoStart.setDefaultValue(Boolean.TRUE);
 
 		CheckBoxPreference notifyPref = new CheckBoxPreference(this);
 		notifyPref.setKey(Constants.SETTINGS_NOTIFICATION_ENABLED);
@@ -100,6 +106,7 @@ public class NotificationSettingsActivity extends PreferenceActivity {
 		vibratePref.setDefaultValue(Boolean.TRUE);
 		// vibratePref.setDependency(Constants.SETTINGS_NOTIFICATION_ENABLED);
 
+		root.addPreference(autoStart);
 		root.addPreference(notifyPref);
 		root.addPreference(soundPref);
 		root.addPreference(vibratePref);
